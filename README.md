@@ -14,11 +14,7 @@ You can find the new data collector repository [here](https://github.com/noi-tec
 
 [![REUSE Compliance](https://github.com/noi-techpark/bdp-commons/actions/workflows/reuse.yml/badge.svg)](https://github.com/noi-techpark/odh-docs/wiki/REUSE#badges)
 
-The Open Data Hub Mobility Data Collectors, historically called also Big Data
-Platform data collectors, and also data providers where contained in this repo,
-therefore it is called common.
-
-This repository contains the source code of all data collectors, that are Java
+This repository contains the source code of all timeseries data collectors, that are Java
 workers that connect to a remote data pool, such as an API, MQTT broker, FTP
 server or their like, and download data, aggregate and enriches that, and
 finally send it to the [Big Data Platform
