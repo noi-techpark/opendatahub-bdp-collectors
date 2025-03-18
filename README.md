@@ -5,7 +5,9 @@ SPDX-License-Identifier: CC0-1.0
 -->
 # Deprecated
 This repository is deprecated, as we are in the process of re-writing all data collectors [to an event-driven architecture](https://github.com/noi-techpark/infrastructure-v2)
+
 New data collectors or major feature implementations should be done on the new architecture.
+
 You can find the new data collector repository [here](https://github.com/noi-techpark/opendatahub-collectors)
 
 # Open Data Hub Mobility - Data Collectors
