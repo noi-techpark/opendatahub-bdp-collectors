@@ -61,6 +61,12 @@ jobs:
           X_scope: openid
           X_BASE_URI: https://mobility.share.opendatahub.testingmachine.eu/json
 
+          X_ODH_CLIENT_PROVENANCE_NAME: ${{ env.PROJECT_NAME }}
+          X_ODH_CLIENT_PROVENANCE_VERSION: ${{ github.sha }}
+          X_ODH_CLIENT_STATIONTYPE: Flight
+          X_ODH_CLIENT_PROVENANCE_ORIGIN: SKYALPS-EFB
+          X_ODH_CLIENT_PERIOD: 300
+
           # Logging
           X_LOG_LEVEL: info
           X_LOG_STYLE: json
@@ -72,7 +78,6 @@ jobs:
 
           X_ODH_CLIENT_ENDPOINT: ${{ secrets.FLIGHTDATA_REALTIME_ENDPOINT }}
           X_ODH_CLIENT_TOKEN: ${{ secrets.FLIGHTDATA_REALTIME_BEARERTOKEN }}
-
 
       - name: Build project
         uses: noi-techpark/github-actions/maven-build@v2
