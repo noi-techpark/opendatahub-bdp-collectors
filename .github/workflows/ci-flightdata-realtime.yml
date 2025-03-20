@@ -104,7 +104,6 @@ jobs:
           docker-password: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           project-name: ${{ env.PROJECT_NAME }}
 
-
   # Deploy Production
   #deploy-prod-flightdata-realtime:
   #  runs-on: ubuntu-22.04
