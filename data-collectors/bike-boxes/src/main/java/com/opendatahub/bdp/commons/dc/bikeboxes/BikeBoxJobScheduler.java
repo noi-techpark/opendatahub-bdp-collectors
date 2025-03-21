@@ -161,14 +161,13 @@ public class BikeBoxJobScheduler {
                 // It will only work as long as we're getting local data,
                 // don't cross the 0 latitude or longitude
                 // and all points are fairly close to each other
-                locationDto.setLatitude(latitudeSum / (double) count);
-                locationDto.setLongitude(longitudeSum / (double) count);
+                locationDto.setLatitude(count > 0 ? latitudeSum / (double) count : 0);
+                locationDto.setLongitude(count > 0 ? longitudeSum / (double) count : 0);
                 odhLocations.add(locationDto);
                 // add location level measurement
                 odhLocationData.addRecord(locationDto.getId(), DataTypes.free.key, mapSimple(freeLocation));
             }
-
-
+            
             LOG.debug("Pushing data to ODH");
             odhClient.syncDataTypes(stationC.stationBayType,
                     Arrays.stream(DataTypes.values())
