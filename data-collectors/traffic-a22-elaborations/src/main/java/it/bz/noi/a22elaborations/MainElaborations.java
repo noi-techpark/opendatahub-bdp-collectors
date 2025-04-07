@@ -163,8 +163,8 @@ public class MainElaborations {
 
 		if (SensorTypeUtil.isCamera(station)) {
 			LOG.debug("Create EURO emission distribution");
-			Map<String, Double> euroPcts = createVehicleEuro(vehicles);	
 			Timestamp timestamp = new Timestamp(lastTimestamp /* + windowLength / 2 */);
+			Map<String, Double> euroPcts = createVehicleEuro(vehicles, timestamp);	
 			SimpleRecordDto rec = new SimpleRecordDto(timestamp.getTime(), euroPcts,
 					(int) (windowLength / 1000), System.currentTimeMillis());
 
@@ -465,7 +465,7 @@ public class MainElaborations {
      * @param vehicles    List of Vehicle objects
 	 * @return map of vehicles EURO and probability
 	 */
-	public Map<String, Double> createVehicleEuro(List<Vehicle> vehicles) {
+	public Map<String, Double> createVehicleEuro(List<Vehicle> vehicles, Timestamp timestamp) {
 		Map<String, Double> euroProb = new HashMap<>();
 		euroProb.put(EUROTypeUtil.EURO0, 0.0);
 		euroProb.put(EUROTypeUtil.EURO1, 0.0);
@@ -477,7 +477,7 @@ public class MainElaborations {
 		euroProb.put(EUROTypeUtil.EUROE, 0.0);
 		int validVehicleCount = 0;
 
-		Map<String, EUROType> euroTypeMap = euroUtility.getVehicleDataMap();
+		Map<String, EUROType> euroTypeMap = euroUtility.getVehicleDataMap(timestamp);
 
         for (Vehicle vehicle : vehicles) {
             String plateInitials = vehicle.getPlateIntiails();

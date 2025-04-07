@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,23 +31,36 @@ public class EUROTypeUtil {
 
     private Logger logger = LoggerFactory.getLogger(EUROTypeUtil.class);
 
-    private Map<String, EUROType> vehicleDataMap;
+    private Map<String, EUROType> vehicleDataMap2023;
+    private Map<String, EUROType> vehicleDataMap2024;
+    private Timestamp cutoff2024 = Timestamp.valueOf("2024-01-01 00:00:00");
 
-    public Map<String, EUROType> getVehicleDataMap() {
-        if (vehicleDataMap == null) {
+    public Map<String, EUROType> getVehicleDataMap(Timestamp timestamp) {
+        if (vehicleDataMap2023 == null || vehicleDataMap2024 == null) {
             initializeMap();
         }
-        return vehicleDataMap;
+
+        if (timestamp.before(cutoff2024)) {
+            return vehicleDataMap2023;
+        }
+
+        return vehicleDataMap2024;
     }
 
     private void initializeMap() {
-        vehicleDataMap = new HashMap<>();
+        vehicleDataMap2023 = new HashMap<>();
+        vehicleDataMap2024 = new HashMap<>();
 
+        readCSV("associaz_prob_euro_targa_AV_2023.csv", vehicleDataMap2023);
+        readCSV("associaz_prob_euro_targa_AV_2024.csv", vehicleDataMap2024);
+    }
+    
+    private void readCSV(String filepath, Map<String, EUROType> map) {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        InputStream inputStream = classloader.getResourceAsStream("associaz_prob_euro_targa_AV_2023.csv");
+        InputStream inputStream = classloader.getResourceAsStream(filepath);
 
         if (inputStream == null) {
-            logger.error("Error: associaz_prob_euro_targa_AV_2023.csv not found");
+            logger.error(String.format("Error: %s not found", filepath));
             return;
         }
 
@@ -89,10 +104,10 @@ public class EUROTypeUtil {
                     }
                 }
 
-                vehicleDataMap.put(targa, new EUROType(targa, probabilities));
+                map.put(targa, new EUROType(targa, probabilities));
             }
         } catch (IOException e) {
-            logger.error("Error while reading associaz_prob_euro_targa_AV_2023.csv", e);
+            logger.error(String.format("Error while reading %s", filepath), e);
         }
     }
 }
