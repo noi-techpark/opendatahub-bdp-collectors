@@ -1,3 +1,0 @@
-@host=http://www.provinz.bz.it/vmz/traffic.json
-
-GET {{host}}
