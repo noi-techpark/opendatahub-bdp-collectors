@@ -17,7 +17,7 @@ jobs:
 
   # Test
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout source code
         uses: noi-techpark/github-actions/checkout@v2
@@ -32,7 +32,7 @@ jobs:
 
   # Deploy Test
   deploy-test-traffic-a22-elaborations:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/main'
     needs: test
     concurrency: deploy-test-traffic-a22-elaborations
@@ -103,7 +103,7 @@ jobs:
 
   # Deploy Production
   deploy-prod-traffic-a22-elaborations:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/prod'
     needs: test
     concurrency: deploy-prod-traffic-a22-elaborations

@@ -18,7 +18,7 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout source code
         uses: noi-techpark/github-actions/checkout@v2
@@ -34,7 +34,7 @@ jobs:
 # As of march 2023 the service is unreachable, so stop the data collector
 ## # Deploy Test
 ##   deploy-test-on-demand-merano:
-##     runs-on: ubuntu-20.04
+##     runs-on: ubuntu-22.04
 ##     if: github.ref == 'refs/heads/main'
 ##     needs: test
 ##     concurrency: deploy-test-on-demand-merano
@@ -108,7 +108,7 @@ jobs:
 ## 
 ##   # Deploy Production
 ##   deploy-prod-on-demand-merano:
-##     runs-on: ubuntu-20.04
+##     runs-on: ubuntu-22.04
 ##     if: github.ref == 'refs/heads/prod'
 ##     needs: test
 ##     concurrency: deploy-prod-on-demand-merano
