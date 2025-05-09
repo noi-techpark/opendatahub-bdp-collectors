@@ -1,9 +1,7 @@
-Tipologia evento,IdSottotipo,Descrizione
-Incidente,1,Incidente
+,1,Incidente
 ,2,Incidente con mezzi pesanti coinvolti
 ,3,Incidente con più veicoli coinvolti
-Livello di servizio,4,Code
-,,
+,4,Code
 ,5,Code a tratti
 ,6,Coda di mezzi pesanti
 ,7,Code in uscita
@@ -13,9 +11,11 @@ Livello di servizio,4,Code
 ,11,Traffico intenso
 ,12,Traffico rallentato
 ,13,Traffico rallentato con code
-Nebbia,14,Banchi di nebbia
+,206,Lunghe code
+,207,Code con blocchi
+,14,Banchi di nebbia
 ,19,Nebbia
-Neve,20,Nevicata prevista
+,20,Nevicata prevista
 ,21,Neve
 ,22,Consigliate le catene a bordo
 ,23,Mezzi spargisale in azione
@@ -32,52 +32,70 @@ Neve,20,Nevicata prevista
 ,120,Neve intensa - Disagi
 ,121,Neve intensa - Code
 ,123,Neve intensa - Blocchi
-Altri eventi meteo,26,Temporali
+,290,Verifica situazione meteo
+,26,Temporali
 ,27,Grandinate
 ,28,Pioggia
 ,29,Raffiche di vento
 ,30,Vento forte
-Cantieri,35,Carreggiata ridotta a due corsie
+,35,Carreggiata ridotta a due corsie
 ,36,Carreggiata ridotta a una corsia
 ,39,Corsia di emergenza chiusa
 ,40,Corsia di marcia chiusa
 ,41,Corsia di sorpasso chiusa
 ,42,Corsie a larghezza ridotta
-,43,Scambio di carreggiata
+,43,Deviazione con una sola corsia per senso di marcia su carreggiata a due corsie
 ,44,Senso unico alternato
-,47,Riduzione corsia di sorpasso e deviazione di 2 corsie ridotte per flusso deviato
-,48,Riduzione corsia di sorpasso e marcia e deviazione di 1 corsia ridotta per flusso deviato
-,49,Deviazione di carreggiata con 2 flussi di marcia
+,47,Chiusura della corsia di sorpasso con il mantenimento delle due corsie
+,48,Chiusura della corsia di marcia su carreggiata a 2 corsie
+,49,Deviazione di carreggiata con 2 flussi per senso di marcia (3+1) A
 ,50,Deviazione di carreggiata con 2 corsie per il traffico non deviato
 ,51,Deviazione di carreggiata con 2 corsie deviate
 ,52,Lavori ai caselli
 ,53,Cantiere mobile
 ,114,Cantiere spartitraffico centrale
 ,208,Deviazione carreggiata con 2 corsie per il traffico deviato
-Disservizi,54,AdS Chiusa/e
+,269,Corsia di emergenza chiusa con new jersey
+,270,Piazzola per la sosta di emergenza chiusa
+,271,Deviazione di carreggiata con 2 flussi per senso di marcia (3+1) B
+,272,Corsia di marcia chiusa anticipata da corsia di sorpasso chiusa
+,273,Deviazione con una sola corsia per senso di marcia su carreggiata a due corsie con chiusura della sorpasso per il traffico deviato sulla carreggiata opposta
+,274,Cantiere mobile - Corsia di emergenza chiusa
+,275,Cantiere mobile - Corsia di marcia chiusa
+,276,Cantiere mobile - Corsia di sorpasso chiusa
+,281,Lavorazioni nello spartitraffico centrale nei tratti con spartitraffico di larghezza 12,00 m
+,282,Cantiere mobile - Lavorazioni nello spartitraffico centrale nei tratti con spartitraffico di larghezza 12,00 m
+,283,Parzializzazione rampe nodo/allacciamento
+,284,Lavori in AdS
+,285,Chiusura Ads
+,286,Chiusura parcheggio mezzi pesanti
+,287,Chiusura parcheggio mezzi leggeri
+,54,AdS Chiusa/e
 ,55,Area di servizio sovraffollata
-,56,"Area di servizio, erogazione di carburante chiusa"
-,57,"Area di servizio, posto di ristoro chiuso"
+,56,Area di servizio, erogazione di carburante chiusa
+,57,Area di servizio, posto di ristoro chiuso
 ,58,Disservizi ADS
 ,59,Colonnine SOS fuori servizio
 ,60,Luci di galleria spente
 ,61,Semafori non operativi
 ,62,Ventilazione gallerie guasta
-Divieti,63,Limite di altezza temporaneo
+,222,Chiuso parcheggio mezzi pesanti
+,223,Chiuso parcheggio mezzi leggeri
+,63,Limite di altezza temporaneo
 ,64,Limite di larghezza temporaneo
-,65,"Divieto di transito veicoli superiori 7,5 T"
+,65,Divieto di transito veicoli superiori 7,5 T
 ,66,Divieto di sorpasso mezzi trainanti rimorchi
-,67,"Divieto di soprasso mezzi pesanti > 3,5 T"
-,68,"Divieto di sorpasso mezzi pesanti > 7,5 T"
+,67,Divieto di soprasso mezzi pesanti > 3,5 T
+,68,Divieto di sorpasso mezzi pesanti > 7,5 T
 ,69,Divieto di sorpasso mezzi pesanti > 12 T
-,197,"Uscita consigliata mezzi pesanti > 7,5 T"
-,198,"Uscita obbligatoria mezzi > 3,5 T"
-,199,"Uscita obbligatoria mezzi pesanti > 7,5 T"
-,200,"Obbligo inversione mezzi pesanti > 7,5 T"
-,201,"Obbligo sosta per mezzi pesanti > 7,5 T"
+,197,Uscita consigliata mezzi pesanti > 7,5 T
+,198,Uscita obbligatoria mezzi > 3,5 T
+,199,Uscita obbligatoria mezzi pesanti > 7,5 T
+,200,Obbligo inversione mezzi pesanti > 7,5 T
+,201,Obbligo sosta per mezzi pesanti > 7,5 T
 ,220,Limite di velocità 110 Km/h
 ,221,Limite di velocità 60 Km/h
-Anomalie della viabilità,70,Fondo sdrucciolevole
+,70,Fondo sdrucciolevole
 ,71,Mezzo pesante in panne
 ,72,Transito eccezionale
 ,73,Veicoli lenti
@@ -94,12 +112,12 @@ Anomalie della viabilità,70,Fondo sdrucciolevole
 ,108,Anomalie del fondo stradale
 ,111,Mezzo pesante in sosta
 ,171,Fumo in carreggiata
-Evento ambientale,83,Sversamento combustibili
+,83,Sversamento combustibili
 ,84,Sversamento liquidi inquinanti
 ,85,Materiali pericolosi
 ,86,Rifiuti speciali
 ,87,Abbandono materiali vari
-Informazione,88,Controlli velocità
+,88,Controlli velocità
 ,89,Dimostrazione
 ,90,Manifestazione fieristica
 ,91,Manifestazioni sportive
@@ -113,17 +131,10 @@ Informazione,88,Controlli velocità
 ,101,Personale sulla carreggiata
 ,139,Data e ora
 ,170,Occupazione parcheggi
-BrennerLEC,172,BrennerLec B4 (BZ-SM)
 ,173,BrennerLec B3 110 T3 (km 138-167)
-,177,BrennerLec B4 II S.103 (BZ-SM)
-,178,BrennerLec B4 II S.107 (EGNA-SM)
 ,179,BrennerLec B3 II (BZ.N-ROV.S)
 ,181,BrennerLec B3 100 T3 (km 138-167)
 ,182,BrennerLec B3 90 T3 (km 138-167)
-,183,BrennerLec B4 II S.100/107 vel 110 (BZ-SM)
-,184,BrennerLec B4 II S.100/107 vel 100 (BZ-SM)
-,185,BrennerLec B4 II S.100/107 vel 90 SUD
-,186,BrennerLec B4 II S.107/100 vel 90 NORD
 ,187,BrennerLec B3 II 110 T1 (km 77-100)
 ,188,BrennerLec B3 II 100 T1 (km 77-100)
 ,189,BrennerLec B3 II 90 T1 (km 77-100)
@@ -141,8 +152,48 @@ BrennerLEC,172,BrennerLec B4 (BZ-SM)
 ,215,BrennerLec B3Nord 100 T1 (km 121-85)
 ,216,BrennerLec B3Nord 90 T1 (km 121-85)
 ,217,BrennerLec B3Nord 80 T1 (km 121-85)
-Chiusure,34,Allacciamento chiuso
-,37,Chiusura tratto autostradale
+,228,T1 SUD B3 AL 110km/h (km19-km49)
+,229,T1 SUD B3 AL 100km/h (km19-km49)
+,230,T1 SUD B3 AL 90km/h (km19-km49)
+,231,T1 SUD B3 AL 80km/h (km19-km49)
+,232,T2 SUD B3 AL 110km/h (km56-km80)
+,233,T2 SUD B3 AL 100km/h (km56-km80)
+,234,T2 SUD B3 AL 90km/h (km56-km80)
+,235,T2 SUD B3 AL 80km/h (km56-km80)
+,236,T3 SUD B3 AL 110km/h (km85-km119)
+,237,T3 SUD B3 AL 100km/h (km85-km119)
+,238,T3 SUD B3 AL 90km/h (km85-km119)
+,239,T3 SUD B3 AL 80km/h (km85-km119)
+,240,T4 SUD B3 AL 110km/h (km123-km140)
+,241,T4 SUD B3 AL 100km/h (km123-km140)
+,242,T4 SUD B3 AL 90km/h (km123-km140)
+,243,T4 SUD B3 AL 80km/h (km123-km140)
+,244,T5 SUD B3 AL 110km/h (km142-km177)
+,245,T5 SUD B3 AL 100km/h (km142-km177)
+,246,T5 SUD B3 AL 90km/h (km142-km177)
+,247,T5 SUD B3 AL 80km/h (km142-km177)
+,248,T1 NORD B3 AL 110km/h (km49-km19)
+,249,T1 NORD B3 AL 100km/h (km49-km19)
+,250,T1 NORD B3 AL 90km/h (km49-km19)
+,251,T1 NORD B3 AL 80km/h (km49-km19)
+,252,T2 NORD B3 AL 110km/h (km85-km56)
+,253,T2 NORD B3 AL 100km/h (km85-km56)
+,254,T2 NORD B3 AL 90km/h (km85-km56)
+,255,T2 NORD B3 AL 80km/h (km85-km56)
+,256,T3 NORD B3 AL 110km/h (km119-km87)
+,257,T3 NORD B3 AL 100km/h (km119-km87)
+,258,T3 NORD B3 AL 90km/h (km119-km87)
+,259,T3 NORD B3 AL 80km/h (km119-km87)
+,260,T4 NORD B3 AL 110km/h (km142-km123)
+,261,T4 NORD B3 AL 100km/h (km142-km123)
+,262,T4 NORD B3 AL 90km/h (km142-km123)
+,263,T4 NORD B3 AL 80km/h (km142-km123)
+,264,T5 NORD B3 AL 110km/h (km177-km144)
+,265,T5 NORD B3 AL 100km/h (km177-km144)
+,266,T5 NORD B3 AL 90km/h (km177-km144)
+,267,T5 NORD B3 AL 80km/h (km177-km144)
+,34,Allacciamento chiuso
+,37,Chiusura tratto stradale
 ,38,Corsia di accelerazione/decelerazione chiusa
 ,45,Chiusura svincolo in entrata
 ,46,Chiusura svincolo in uscita
@@ -150,5 +201,20 @@ Chiusure,34,Allacciamento chiuso
 ,194,Uscita obbligatoria
 ,195,Uscita consigliata mezzi leggeri
 ,196,Uscita obbligatoria mezzi leggeri
-,205,"Chiusura tratto stradale per mezzi > 7,5T"
+,205,Chiusura tratto stradale per mezzi > 7,5T
 ,209,Entrata consigliata
+,277,Chiusura piste di stazione (in entrata)
+,278,Chiusura parziale piazzali di stazione
+,280,Chiusura piste di stazione (in uscita)
+,288,Parzializzazione svincolo entrata/uscita
+,172,BrennerLec B4 (BZ-SM)
+,177,BrennerLec B4 II S.103 (BZ-SM)
+,178,BrennerLec B4 II S.107 (EGNA-SM)
+,183,BrennerLec B4 II S.100/107 vel 110 (BZ-SM)
+,184,B4 AL Bassa Atesina (km100-km105) 100km/h
+,185,BrennerLec B4 II S.100/107 vel 90 SUD
+,186,BrennerLec B4 II S.107/100 vel 90 NORD
+,224,B4 AL Bressanone (km38-km49) 90/100km/h
+,225,B4 AL Bolzano (km76-km87) 90/100km/h
+,226,B4 AL Trento (km129-km144) 100km/h
+,227,B4 AL Rovereto (km152-km167) 100km/h
