@@ -54,6 +54,9 @@ public class MainElaborations {
 
 	@Autowired
 	private Utility utility;
+	
+	@Autowired
+	private EUROTypeUtil euroUtility;
 
 	@PostConstruct
 	private void init() {
@@ -80,7 +83,7 @@ public class MainElaborations {
 
 			LOG.debug("Read elaboration properties");
 			WindowStepLength winStepLength = readElaborationProperties();
-
+		
 			long now = System.currentTimeMillis();
 
 			for (StationDto station : stations) {
@@ -94,9 +97,8 @@ public class MainElaborations {
 				// LOG.debug("Timestamp of last record: " + lastTimestamp);
 				if (lastTimestamp <= 0) {
 					Calendar calendar = Calendar.getInstance();
-					// calendar.set(2017, Calendar.JANUARY, 1, 0, 0, 0);
 					// minimum import date
-					calendar.set(2023, Calendar.JULY, 7, 0, 0, 0);
+					calendar.set(2024, Calendar.JULY, 10, 0, 0, 0);
 					calendar.set(Calendar.MILLISECOND, 0);
 
 					lastTimestamp = calendar.getTimeInMillis();
@@ -159,6 +161,28 @@ public class MainElaborations {
 			long windowLength) {
 		DataMapDto<RecordDtoImpl> dataMapDto = new DataMapDto<>();
 
+		if (SensorTypeUtil.isCamera(station)) {
+			LOG.debug("Create EURO emission distribution");
+			Timestamp timestamp = new Timestamp(lastTimestamp /* + windowLength / 2 */);
+			Map<String, Double> euroPcts = createVehicleEuro(vehicles, timestamp);	
+			SimpleRecordDto rec = new SimpleRecordDto(timestamp.getTime(), euroPcts,
+					(int) (windowLength / 1000), System.currentTimeMillis());
+
+			LOG.debug("Save Euro emission standard");
+			dataMapDto.addRecord(station.getId(), SyncDatatype.EURO_CATEGOY_PCT, rec);
+		}	
+		
+		if (SensorTypeUtil.isCamera(station)) {
+			LOG.debug("Create Nationality aggregation");
+			Map<String, Integer> countByNat = createVehicleNationality(vehicles);	
+			Timestamp timestamp = new Timestamp(lastTimestamp /* + windowLength / 2 */);
+			SimpleRecordDto rec = new SimpleRecordDto(timestamp.getTime(), countByNat,
+					(int) (windowLength / 1000), System.currentTimeMillis());
+
+			LOG.debug("Save Vehicle count by nationality" + countByNat.size());
+			dataMapDto.addRecord(station.getId(), SyncDatatype.PLATE_NATIONALITY_COUNT, rec);
+		}	
+		
 		LOG.debug("Create vehicle classes");
 		Map<String, Integer> classCounts = createVehicleCounts(vehicles);
 
@@ -245,9 +269,6 @@ public class MainElaborations {
 		double speedSum = 0;
 
 		for (Vehicle vehicle : vehicles) {
-			if (vehicle.getNr_classes_count() != 1)
-				throw new IllegalStateException("vehicle classification not unique");
-
 			gapSum += vehicle.getDistance();
 			headwaySum += vehicle.getHeadway();
 			// meanSpacing += vehicle.getHeadway() * vehicle.getSpeed() / 3.6;
@@ -295,21 +316,15 @@ public class MainElaborations {
 		int countHeavy = 0;
 		int countBuses = 0;
 		for (Vehicle vehicle : vehicles) {
-			// 2019-06-21 d@vide.bz: if the classification is not unique then skip this
-			// vehicle
-			if (vehicle.getNr_classes_avg() != 1)
-				continue;
-
-			if (vehicle.isClasse_1_avg() || vehicle.isClasse_2_avg() || vehicle.isClasse_4_avg()) {
+			if (vehicle.isLight()) {
 				speedSumLight += Math
 						.pow(vehicle.getSpeed() - classAvgSpeeds.get(SyncDatatype.AVERAGE_SPEED_LIGHT_VEHICLES), 2);
 				countLight++;
-			} else if (vehicle.isClasse_3_avg() || vehicle.isClasse_6_avg() || vehicle.isClasse_7_avg()
-					|| vehicle.isClasse_8_avg()) {
+			} else if (vehicle.isHeavy()) {
 				speedSumHeavy += Math
 						.pow(vehicle.getSpeed() - classAvgSpeeds.get(SyncDatatype.AVERAGE_SPEED_HEAVY_VEHICLES), 2);
 				countHeavy++;
-			} else if (vehicle.isClasse_5_avg() || vehicle.isClasse_9_avg()) {
+			} else if (vehicle.isBus()) {
 				speedSumBuses += Math.pow(vehicle.getSpeed() - classAvgSpeeds.get(SyncDatatype.AVERAGE_SPEED_BUSES), 2);
 				countBuses++;
 			}
@@ -352,19 +367,13 @@ public class MainElaborations {
 		int countHeavy = 0;
 		int countBuses = 0;
 		for (Vehicle vehicle : vehicles) {
-			// 2019-06-21 d@vide.bz: if the classification is not unique then skip this
-			// vehicle
-			if (vehicle.getNr_classes_avg() != 1)
-				continue;
-
-			if (vehicle.isClasse_1_avg() || vehicle.isClasse_2_avg() || vehicle.isClasse_4_avg()) {
+			if (vehicle.isLight()) {
 				speedSumLight += vehicle.getSpeed();
 				countLight++;
-			} else if (vehicle.isClasse_3_avg() || vehicle.isClasse_6_avg() || vehicle.isClasse_7_avg()
-					|| vehicle.isClasse_8_avg()) {
+			} else if (vehicle.isHeavy()) {
 				speedSumHeavy += vehicle.getSpeed();
 				countHeavy++;
-			} else if (vehicle.isClasse_5_avg() || vehicle.isClasse_9_avg()) {
+			} else if (vehicle.isBus()) {
 				speedSumBuses += vehicle.getSpeed();
 				countBuses++;
 			}
@@ -406,10 +415,7 @@ public class MainElaborations {
 
 		String query = Utility.readResourceText(MainElaborations.class, "read-window.sql");
 
-		String anomalies = Utility.readResourceText(MainElaborations.class, "save-anomalies.sql");
-
 		try (
-				PreparedStatement ps_anomalies = connection.prepareStatement(anomalies);
 				PreparedStatement ps = connection.prepareStatement(query);) {
 			ps.setLong(1, from_ts / 1000);
 			ps.setLong(2, to_ts / 1000);
@@ -419,43 +425,10 @@ public class MainElaborations {
 				Vehicle vehicle = new Vehicle(resultSet.getString("stationCode"), resultSet.getLong("timestamp"),
 						resultSet.getDouble("distance"), resultSet.getDouble("headway"), resultSet.getDouble("length"),
 						resultSet.getInt("axles"), resultSet.getBoolean("against_traffic"), resultSet.getInt("class"),
-						resultSet.getDouble("speed"), resultSet.getInt("direction"), resultSet.getDouble("vmed_50"),
-						resultSet.getBoolean("classe_1_avg"), resultSet.getBoolean("classe_1_count"),
-						resultSet.getBoolean("classe_2_avg"), resultSet.getBoolean("classe_2_count"),
-						resultSet.getBoolean("classe_3_avg"), resultSet.getBoolean("classe_3_count"),
-						resultSet.getBoolean("classe_4_avg"), resultSet.getBoolean("classe_4_count"),
-						resultSet.getBoolean("classe_5_avg"), resultSet.getBoolean("classe_5_count"),
-						resultSet.getBoolean("classe_6_avg"), resultSet.getBoolean("classe_6_count"),
-						resultSet.getBoolean("classe_7_avg"), resultSet.getBoolean("classe_7_count"),
-						resultSet.getBoolean("classe_8_avg"), resultSet.getBoolean("classe_8_count"),
-						resultSet.getBoolean("classe_9_avg"), resultSet.getBoolean("classe_9_count"),
-						resultSet.getInt("nr_classes_count"), resultSet.getInt("nr_classes_avg"));
+						resultSet.getDouble("speed"), resultSet.getInt("direction"), resultSet.getString("license_plate_initials"),
+						resultSet.getString("country"));
 
-				if (vehicle.getNr_classes_count() != 1 || vehicle.getNr_classes_avg() != 1) {
-					// save into anomalies
-					ps_anomalies.setString(1, vehicle.getStationcode());
-					ps_anomalies.setLong(2, vehicle.getTimestamp());
-					ps_anomalies.setDouble(3, vehicle.getDistance());
-					ps_anomalies.setDouble(4, vehicle.getHeadway());
-					ps_anomalies.setDouble(5, vehicle.getLength());
-					ps_anomalies.setInt(6, vehicle.getAxles());
-					ps_anomalies.setBoolean(7, vehicle.isAgainst_traffic());
-					ps_anomalies.setInt(8, vehicle.getClass_nr());
-					ps_anomalies.setDouble(9, vehicle.getSpeed());
-					ps_anomalies.setInt(10, vehicle.getDirection());
-
-					ps_anomalies.executeUpdate();
-				}
-
-				// 2019-07-24 d@vide.bz: this case is happen. check the anomalies table to
-				// understand why.
-				// if (vehicle.getNr_classes_avg() == 1 && vehicle.getNr_classes_count() != 1)
-				// throw new IllegalStateException("Illegal condition?");
-
-				// if this vehicle can at least be used for count then add it for processing!
-				if (vehicle.getNr_classes_count() == 1) {
 					vehicles.add(vehicle);
-				}
 			}
 		}
 
@@ -474,20 +447,129 @@ public class MainElaborations {
 		classCounts.put(SyncDatatype.NR_HEAVY_VEHICLES, 0);
 		classCounts.put(SyncDatatype.NR_BUSES, 0);
 		for (Vehicle vehicle : vehicles) {
-			if (vehicle.getNr_classes_count() != 1)
-				throw new IllegalStateException("Illegal condition"); // 2019-06-21 d@vide.bz: or continue
-
-			if (vehicle.isClasse_1_count() || vehicle.isClasse_2_count() || vehicle.isClasse_4_count()) {
+			if (vehicle.isLight()) {
 				classCounts.put(SyncDatatype.NR_LIGHT_VEHICLES, classCounts.get(SyncDatatype.NR_LIGHT_VEHICLES) + 1);
-			} else if (vehicle.isClasse_3_count() || vehicle.isClasse_6_count() || vehicle.isClasse_7_count()
-					|| vehicle.isClasse_8_count()) {
+			} else if (vehicle.isHeavy()) {
 				classCounts.put(SyncDatatype.NR_HEAVY_VEHICLES, classCounts.get(SyncDatatype.NR_HEAVY_VEHICLES) + 1);
-			} else if (vehicle.isClasse_5_count() || vehicle.isClasse_9_count()) {
+			} else if (vehicle.isBus()) {
 				classCounts.put(SyncDatatype.NR_BUSES, classCounts.get(SyncDatatype.NR_BUSES) + 1);
 			}
 		}
 
 		return classCounts;
+	}
+
+	/**
+	 * create vehicle EURO probability distribution
+	 *
+     * @param vehicles    List of Vehicle objects
+	 * @return map of vehicles EURO and probability
+	 */
+	public Map<String, Double> createVehicleEuro(List<Vehicle> vehicles, Timestamp timestamp) {
+		Map<String, Double> euroProb = new HashMap<>();
+		euroProb.put(EUROTypeUtil.EURO0, 0.0);
+		euroProb.put(EUROTypeUtil.EURO1, 0.0);
+		euroProb.put(EUROTypeUtil.EURO2, 0.0);
+		euroProb.put(EUROTypeUtil.EURO3, 0.0);
+		euroProb.put(EUROTypeUtil.EURO4, 0.0);
+		euroProb.put(EUROTypeUtil.EURO5, 0.0);
+		euroProb.put(EUROTypeUtil.EURO6, 0.0);
+		euroProb.put(EUROTypeUtil.EUROE, 0.0);
+		int validVehicleCount = 0;
+
+		Map<String, EUROType> euroTypeMap = euroUtility.getVehicleDataMap(timestamp);
+
+        for (Vehicle vehicle : vehicles) {
+            String plateInitials = vehicle.getPlateIntiails();
+
+            // Handle null or missing plate initials
+            if (plateInitials == null || plateInitials.isEmpty()) {
+                continue;
+            }
+
+            // Get EURO probabilities from the CSV-based map
+            EUROType euroData = euroTypeMap.get(plateInitials);
+
+            // If there's no mapping for this plate, continue
+            if (euroData == null) {
+                continue;
+            }
+
+            // Extract probability map and add to cumulative sum
+            Map<String, Double> probabilities = euroData.getProbabilities();
+            for (Map.Entry<String, Double> entry : probabilities.entrySet()) {
+                euroProb.put(entry.getKey(), euroProb.get(entry.getKey()) + entry.getValue());
+            }
+
+            validVehicleCount++;
+        }
+
+        // Normalize by dividing each sum by the valid vehicle count
+        if (validVehicleCount > 0) {
+            for (String key : euroProb.keySet()) {
+                euroProb.put(key, euroProb.get(key) / validVehicleCount);
+            }
+        }
+
+        return euroProb;
+	}
+
+	/**
+	 * create vehicle Nationality count
+	 *
+     * @param vehicles    List of Vehicle objects
+	 * @return map of vehicles count by nationality
+	 */
+	public Map<String, Integer> createVehicleNationality(List<Vehicle> vehicles) {
+		Map<String, Integer> natCount = new HashMap<>();
+		natCount.put("I", 0);
+		natCount.put("F", 0);
+		natCount.put("GB", 0);
+		natCount.put("D", 0);
+		natCount.put("CH", 0);
+		natCount.put("A", 0);
+		natCount.put("NL", 0);
+		natCount.put("E", 0);
+		natCount.put("B", 0);
+		natCount.put("DK", 0);
+		natCount.put("L", 0);
+		natCount.put("S", 0);
+		natCount.put("PL", 0);
+		natCount.put("GR", 0);
+		natCount.put("H", 0);
+		natCount.put("CZ", 0);
+		natCount.put("SK", 0);
+		natCount.put("BG", 0);
+		natCount.put("EST", 0);
+		natCount.put("FIN", 0);
+		natCount.put("HR", 0);
+		natCount.put("IRL", 0);
+		natCount.put("LT", 0);
+		natCount.put("LV", 0);
+		natCount.put("P", 0);
+		natCount.put("RO", 0);
+		natCount.put("RSM", 0);
+		natCount.put("SLO", 0);
+		natCount.put("XXX", 0);
+		
+        for (Vehicle vehicle : vehicles) {
+            String nation = vehicle.getPlateNat();
+
+            // Handle null or missing plate initials
+            if (nation == null || nation.isEmpty()) {
+                continue;
+            }
+
+            // Get EURO probabilities from the CSV-based map
+            if (null == natCount.get(nation)) {
+				natCount.put(nation, 1);
+				continue;
+			}
+
+            natCount.put(nation, natCount.get(nation) + 1);
+		}
+
+        return natCount;
 	}
 
 	/*

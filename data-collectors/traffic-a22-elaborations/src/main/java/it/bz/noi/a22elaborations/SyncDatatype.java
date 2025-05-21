@@ -32,6 +32,9 @@ public class SyncDatatype
 	static final String AVERAGE_DENSITY = "Average Density";
 	static final String AVERAGE_FLOW = "Average Flow";
 
+	static final String EURO_CATEGOY_PCT = "Euro Emission Standard";
+	static final String PLATE_NATIONALITY_COUNT = "Vehicle Count by Nationality";
+
 	private static Logger LOG = LoggerFactory.getLogger(SyncDatatype.class);
 
 	@Autowired
@@ -77,6 +80,12 @@ public class SyncDatatype
 		dataTypeDtoList.add(averageDensity);
 		DataTypeDto averageFlow = new DataTypeDto(AVERAGE_FLOW, "vehicles / hour", "Average Flow", "Mean");
 		dataTypeDtoList.add(averageFlow);
+
+		DataTypeDto europct = new DataTypeDto(EURO_CATEGOY_PCT, "%", "Euro emission standards distribution", "Mean");
+		dataTypeDtoList.add(europct);
+
+		DataTypeDto natCount = new DataTypeDto(PLATE_NATIONALITY_COUNT, "", "Vehicle Count by License Plate Nationality", "Count");
+		dataTypeDtoList.add(natCount);
 
 		pusher.syncDataTypes(dataTypeDtoList);
 

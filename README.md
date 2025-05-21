@@ -3,16 +3,18 @@ SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
 
 SPDX-License-Identifier: CC0-1.0
 -->
+# Deprecated
+This repository is deprecated, as we are in the process of re-writing all data collectors [to an event-driven architecture](https://github.com/noi-techpark/infrastructure-v2)
+
+New data collectors or major feature implementations should be done on the new architecture.
+
+You can find the new data collector repository [here](https://github.com/noi-techpark/opendatahub-collectors)
 
 # Open Data Hub Mobility - Data Collectors
 
 [![REUSE Compliance](https://github.com/noi-techpark/bdp-commons/actions/workflows/reuse.yml/badge.svg)](https://github.com/noi-techpark/odh-docs/wiki/REUSE#badges)
 
-The Open Data Hub Mobility Data Collectors, historically called also Big Data
-Platform data collectors, and also data providers where contained in this repo,
-therefore it is called common.
-
-This repository contains the source code of all data collectors, that are Java
+This repository contains the source code of all timeseries data collectors, that are Java
 workers that connect to a remote data pool, such as an API, MQTT broker, FTP
 server or their like, and download data, aggregate and enriches that, and
 finally send it to the [Big Data Platform
@@ -105,6 +107,22 @@ mvn clean test
 
 Please, refer to the `README.md` inside that folder for further details, and
 report any incidence to `help@opendatahub.com`.
+
+If both the Data Collector and the Open Datahub Mobility Writer are run as Docker instances during development, an additional manual Docker network must be set up to enable communication between the containers:
+
+```
+docker network create collector-dev-network
+```
+
+This network must be included in both docker-compose.yaml files and configured for use by the two services:
+
+```yaml
+networks:
+  collector-dev-network:
+    external: true
+```
+
+All endpoints and occurrences of localhost in the Data Collector must then be replaced by the bdp-service "bdp".
 
 #### VSCode: Start a debug session
 

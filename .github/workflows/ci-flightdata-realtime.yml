@@ -1,0 +1,175 @@
+# SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: CI/CD flightdata-realtime
+
+on:
+  push:
+    paths:
+      - "data-collectors/flightdata-realtime/**"
+      - ".github/workflows/ci-flightdata-realtime.yml"
+
+env:
+  WORKING_DIRECTORY: data-collectors/flightdata-realtime
+  PROJECT_NAME: odh-mobility-dc-flightdata-realtime
+  DOCKER_IMAGE: ghcr.io/${{ github.repository }}/odh-mobility-dc-flightdata-realtime
+  DOCKER_TAG: ${{ github.sha }}
+  JAVA_VERSION: '17'
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Test code
+        uses: noi-techpark/github-actions/maven-test@v2
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+          test-command: 'mvn -B -U clean compile test'
+
+  # Deploy Test
+  deploy-test-flightdata-realtime:
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/main'
+    needs: test
+    concurrency: deploy-test-flightdata-realtime
+    env:
+      KEYCLOAK_URL: https://auth.opendatahub.testingmachine.eu
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Create .env file
+        uses: noi-techpark/github-actions/env-file@v2
+        with:
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+        env:
+          # General deployment options
+          X_COMPOSE_PROJECT_NAME: ${{ env.PROJECT_NAME }}
+          X_DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
+          X_DOCKER_TAG: ${{ env.DOCKER_TAG }}
+          X_JAVA_OPTIONS: -Xms128m -Xmx512m
+
+          # Open Data Hub Writer Connectivity
+          X_authorizationUri: ${{ env.KEYCLOAK_URL }}/auth
+          X_tokenUri: ${{ env.KEYCLOAK_URL }}/auth/realms/noi/protocol/openid-connect/token
+          X_clientId: odh-mobility-datacollector
+          X_clientName: odh-mobility-datacollector
+          X_clientSecret: ${{ secrets.DATACOLLECTORS_CLIENT_SECRET_TEST }}
+          X_scope: openid
+          X_BASE_URI: https://mobility.share.opendatahub.testingmachine.eu/json
+
+          X_ODH_CLIENT_PROVENANCE_NAME: ${{ env.PROJECT_NAME }}
+          X_ODH_CLIENT_PROVENANCE_VERSION: ${{ github.sha }}
+          X_ODH_CLIENT_STATIONTYPE: Flight
+          X_ODH_CLIENT_PROVENANCE_ORIGIN: SKYALPS-EFB
+          X_ODH_CLIENT_PERIOD: 300
+
+          # Logging
+          X_LOG_LEVEL: info
+          X_LOG_STYLE: json
+          X_provenance_name: ${{ env.PROJECT_NAME }}
+          X_provenance_version: ${{ github.sha }}
+
+          X_SCHEDULER_CRON_A: "0 */15 * * * *"
+          X_SCHEDULER_POOL_SIZE: 10
+
+          X_ODH_CLIENT_ENDPOINT: ${{ secrets.FLIGHTDATA_REALTIME_ENDPOINT }}
+          X_ODH_CLIENT_TOKEN: ${{ secrets.FLIGHTDATA_REALTIME_BEARERTOKEN }}
+
+      - name: Build project
+        uses: noi-techpark/github-actions/maven-build@v2
+        with:
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+          java-version: ${{ env.JAVA_VERSION }}
+          build-command: 'mvn -B -DskipTests -DfinalName=ROOT clean package'
+
+      - name: Build and push images
+        uses: noi-techpark/github-actions/docker-build-and-push@v2
+        with:
+          working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure
+          docker-username: ${{ github.actor }}
+          docker-password: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Deploy application
+        uses: noi-techpark/github-actions/docker-deploy@v2
+        with:
+          working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure/ansible
+          hosts: 'test'
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          docker-username: 'noi-techpark-bot'
+          docker-password: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          project-name: ${{ env.PROJECT_NAME }}
+
+  # Deploy Production
+  #deploy-prod-flightdata-realtime:
+  #  runs-on: ubuntu-22.04
+  #  if: github.ref == 'refs/heads/prod'
+  #  needs: test
+  #  concurrency: deploy-prod-flightdata-realtime
+  #  env:
+  #    KEYCLOAK_URL: https://auth.opendatahub.com
+  #  steps:
+  #    - name: Checkout source code
+  #      uses: actions/checkout@v2
+  #    - name: Create .env file
+  #      uses: noi-techpark/github-actions/env-file@v2
+  #      with:
+  #        working-directory: ${{ env.WORKING_DIRECTORY }}
+  #      env:
+  #        # General deployment options
+  #        X_COMPOSE_PROJECT_NAME: ${{ env.PROJECT_NAME }}
+  #        X_DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
+  #        X_DOCKER_TAG: ${{ env.DOCKER_TAG }}
+  #        X_JAVA_OPTIONS: -Xms128m -Xmx512m
+
+  #        # Open Data Hub Writer Connectivity
+  #        X_authorizationUri: ${{ env.KEYCLOAK_URL }}/auth
+  #        X_tokenUri: ${{ env.KEYCLOAK_URL }}/auth/realms/noi/protocol/openid-connect/token
+  #        X_clientId: odh-mobility-datacollector
+  #        X_clientName: odh-mobility-datacollector
+  #        X_clientSecret: ${{ secrets.DATACOLLECTORS_CLIENT_SECRET_PROD }}
+  #        X_scope: openid
+  #        X_BASE_URI: https://mobility.share.opendatahub.com/json
+
+  #        # Logging
+  #        X_LOG_LEVEL: "info"
+  #        X_LOG_STYLE: json
+  #        X_provenance_name: ${{ env.PROJECT_NAME }}
+  #        X_provenance_version: ${{ github.sha }}
+
+  #        X_SCHEDULER_CRON_A: "0 */15 * * * *"
+  #        X_SCHEDULER_POOL_SIZE: 10
+
+  #        X_ODH_CLIENT_ENDPOINT: ${{ secrets.FLIGHTDATA_REALTIME_ENDPOINT }}
+  #        X_ODH_CLIENT_TOKEN: ${{ secrets.FLIGHTDATA_REALTIME_BEARERTOKEN }}
+
+
+  #    - name: Build project
+  #      uses: noi-techpark/github-actions/maven-build@v2
+  #      with:
+  #        working-directory: ${{ env.WORKING_DIRECTORY }}
+  #        java-version: ${{ env.JAVA_VERSION }}
+  #        build-command: 'mvn -B -DskipTests -DfinalName=ROOT clean package'
+
+  #    - name: Build and push images
+  #      uses: noi-techpark/github-actions/docker-build-and-push@v2
+  #      with:
+  #        working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure
+  #        docker-username: ${{ github.actor }}
+  #        docker-password: ${{ secrets.GITHUB_TOKEN }}
+
+
+  #    - name: Deploy application
+  #      uses: noi-techpark/github-actions/docker-deploy@v2
+  #      with:
+  #        working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure/ansible
+  #        hosts: 'prod'
+  #        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #        docker-username: 'noi-techpark-bot'
+  #        docker-password: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+  #        project-name: ${{ env.PROJECT_NAME }}
+

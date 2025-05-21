@@ -26,6 +26,10 @@ public class SensorTypeUtil {
 
     private Map<String, String> sensorTypeByStation;
 
+    public static boolean isCamera(StationDto station) {
+        return "camera".equals(station.getMetaData().get("sensor_type"));
+    }
+
     public void addSensorTypeMetadata(StationList stations) {
         if (sensorTypeByStation == null) {
             initializeMap();
