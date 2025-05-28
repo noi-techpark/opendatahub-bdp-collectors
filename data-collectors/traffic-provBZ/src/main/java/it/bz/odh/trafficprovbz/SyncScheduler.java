@@ -11,6 +11,8 @@ import it.bz.odh.trafficprovbz.dto.AggregatedDataDto;
 import it.bz.odh.trafficprovbz.dto.MetadataDto;
 import it.bz.odh.trafficprovbz.dto.PassagesDataDto;
 import net.minidev.json.JSONObject;
+
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -228,23 +230,33 @@ public class SyncScheduler {
 					endPeriodTrafficList.get(stationId));
 			LOG.info("After Initialisation for {}", station.getId());
 
+			Date start = startPeriodTrafficList.get(stationId);
+			Date end = endPeriodTrafficList.get(stationId);
+
 			for (String key : station.getLanes().keySet()) {
-				DataMapDto<RecordDtoImpl> rootMap = new DataMapDto<>();
-				// use id that has been written to odh by station sync
-				DataMapDto<RecordDtoImpl> stationMap = rootMap.upsertBranch(key);
-				AggregatedDataDto[] aggregatedDataDtos = famasClient.getAggregatedDataOnStations(requestStationId,
-						sdf.format(startPeriodTrafficList.get(stationId)),
-						sdf.format(endPeriodTrafficList.get(stationId)));
-				Parser.insertDataIntoStationMap(aggregatedDataDtos, period, stationMap,
-						station.getLanes().get(key));
+				do {
+					// The API has a 7 day request window limit
+					Date windowEnd = DateUtils.addDays(start, 7);
+					if (windowEnd.after(end)){
+						windowEnd = end;
+					}
+					DataMapDto<RecordDtoImpl> rootMap = new DataMapDto<>();
+					// use id that has been written to odh by station sync
+					DataMapDto<RecordDtoImpl> stationMap = rootMap.upsertBranch(key);
+					AggregatedDataDto[] aggregatedDataDtos = famasClient.getAggregatedDataOnStations(requestStationId,
+							sdf.format(start),
+							sdf.format(end));
+					Parser.insertDataIntoStationMap(aggregatedDataDtos, period, stationMap,
+							station.getLanes().get(key));
 
-				pushWithRetryOnException(rootMap, station, odhClientTrafficSensor);
-
+					pushWithRetryOnException(rootMap, station, odhClientTrafficSensor);
+					start = windowEnd; // not sure if interval is open or closed, but shouldn't matter because of duplicate protection on bdp
+				} while (start.before(end));
 			}
 
 			// If everything was successful we set the start of the next period equal to the
 			// end of the period queried right now
-			startPeriodTrafficList.put(stationId, endPeriodTrafficList.get(stationId));
+			startPeriodTrafficList.put(stationId, end);
 			LOG.info("After inserting to DB for {}", station.getId());
 			LOG.info("Cron job traffic for station {} successful", station.getId());
 		}
