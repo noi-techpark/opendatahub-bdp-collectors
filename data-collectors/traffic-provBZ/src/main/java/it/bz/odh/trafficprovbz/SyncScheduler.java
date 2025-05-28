@@ -287,8 +287,8 @@ public class SyncScheduler {
 				Date end = endPeriodBluetoothList.get(stationId);
 
 				do {
-					// The API has a 12 hour request window limit
-					Date windowEnd = DateUtils.addHours(start, 12);
+					// The API has a 12 hour request window limit, but still throws errors that it's too many entries with that
+					Date windowEnd = DateUtils.addHours(start, 2);
 					if (windowEnd.after(end)){
 						windowEnd = end;
 					}
