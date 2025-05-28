@@ -37,7 +37,7 @@ public class SensorTypeUtil {
                 station.getMetaData().put("sensor_type", sensorType.trim());
             } else {
                 station.getMetaData().put("sensor_type", defaultSensorType);
-                logger.info("Station with code {} not found in sensor-type-mapping.csv. Using default '{}'", station.getId(), defaultSensorType);
+                logger.debug("Station with code {} not found in sensor-type-mapping.csv. Using default '{}'", station.getId(), defaultSensorType);
             }
         }
 
