@@ -386,24 +386,4 @@ public class SyncScheduler {
 			LOG.error("Sync data types failed: Request exception: {}", e.getMessage());
 		}
 	}
-
-	/**
-	 * This helper function finds the classification schema for a given station
-	 *
-	 * @param classificationSchemaList is a list containing all the classification
-	 *                                 schemas
-	 * @param metadataDto              is a variable where the station is stored
-	 * @return the appropriate classification schema for the station
-	 */
-	private LinkedHashMap<String, String> getClassificationSchema(
-			ArrayList<LinkedHashMap<String, String>> classificationSchemaList, MetadataDto metadataDto) {
-		for (LinkedHashMap<String, String> classificationSchema : classificationSchemaList) {
-			int code = JsonPath.read(classificationSchema, "$.Codice");
-			if (code == metadataDto.getClassificationSchema()) {
-				return classificationSchema;
-			}
-		}
-		return null;
-	}
-
 }
