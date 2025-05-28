@@ -25,6 +25,7 @@ public class SensorTypeUtil {
     private Logger logger = LoggerFactory.getLogger(SensorTypeUtil.class);
 
     private Map<String, String> sensorTypeByStation;
+    private static String defaultSensorType = "induction_loop";
 
     public void addSensorTypeMetadata(StationList stations) {
         if (sensorTypeByStation == null) {
@@ -35,7 +36,8 @@ public class SensorTypeUtil {
             if (sensorType != null && !sensorType.isEmpty()) {
                 station.getMetaData().put("sensor_type", sensorType.trim());
             } else {
-                logger.info("Station with code {} not found in sensor-type-mapping.csv", station.getId());
+                station.getMetaData().put("sensor_type", defaultSensorType);
+                logger.debug("Station with code {} not found in sensor-type-mapping.csv. Using default '{}'", station.getId(), defaultSensorType);
             }
         }
 
