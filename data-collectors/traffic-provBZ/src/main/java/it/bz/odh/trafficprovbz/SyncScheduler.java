@@ -246,7 +246,7 @@ public class SyncScheduler {
 						DataMapDto<RecordDtoImpl> stationMap = rootMap.upsertBranch(key);
 						AggregatedDataDto[] aggregatedDataDtos = famasClient.getAggregatedDataOnStations(requestStationId,
 								sdf.format(start),
-								sdf.format(end));
+								sdf.format(windowEnd));
 						Parser.insertDataIntoStationMap(aggregatedDataDtos, period, stationMap,
 								station.getLanes().get(key));
 
