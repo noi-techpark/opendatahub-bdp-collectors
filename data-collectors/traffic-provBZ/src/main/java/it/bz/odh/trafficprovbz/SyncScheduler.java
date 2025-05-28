@@ -282,16 +282,28 @@ public class SyncScheduler {
 				endPeriodBluetoothList = updateEndPeriod(stationId, endPeriodBluetoothList);
 				startPeriodBluetoothList = updateStartPeriod(stationId, startPeriodBluetoothList,
 						endPeriodBluetoothList.get(stationId));
-				DataMapDto<RecordDtoImpl> rootMap = new DataMapDto<>();
-				DataMapDto<RecordDtoImpl> stationMap = rootMap.upsertBranch(station.getId());
-				DataMapDto<RecordDtoImpl> bluetoothMetricMap = stationMap.upsertBranch("vehicle detection");
-				PassagesDataDto[] passagesDataDtos = famasClient.getPassagesDataOnStations(stationId,
-						sdf.format(startPeriodBluetoothList.get(stationId)),
-						sdf.format(endPeriodBluetoothList.get(stationId)));
 
-				Parser.insertDataIntoBluetoothmap(passagesDataDtos, period, bluetoothMetricMap);
+				Date start = startPeriodBluetoothList.get(stationId);
+				Date end = endPeriodBluetoothList.get(stationId);
 
-				pushWithRetryOnException(rootMap, station, odhClientBluetoothStation);
+				do {
+					// The API has a 12 hour request window limit
+					Date windowEnd = DateUtils.addHours(start, 12);
+					if (windowEnd.after(end)){
+						windowEnd = end;
+					}
+					DataMapDto<RecordDtoImpl> rootMap = new DataMapDto<>();
+					DataMapDto<RecordDtoImpl> stationMap = rootMap.upsertBranch(station.getId());
+					DataMapDto<RecordDtoImpl> bluetoothMetricMap = stationMap.upsertBranch("vehicle detection");
+					PassagesDataDto[] passagesDataDtos = famasClient.getPassagesDataOnStations(stationId,
+							sdf.format(start),
+							sdf.format(windowEnd));
+
+					Parser.insertDataIntoBluetoothmap(passagesDataDtos, period, bluetoothMetricMap);
+
+					pushWithRetryOnException(rootMap, station, odhClientBluetoothStation);
+					start = windowEnd; // not sure if interval is open or closed, but shouldn't matter because of duplicate protection on bdp
+				} while (start.before(end));
 
 				// If everything was successful we set the start of the next period equal to the
 				// end of the period queried right now
