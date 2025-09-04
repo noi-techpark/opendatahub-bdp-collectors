@@ -175,7 +175,7 @@ jobs:
 
           # Scheduler
           X_SCHEDULER_CRON_STATIONS: 0 0 */1 * * *
-          X_SCHEDULER_CRON_SLOTS: 10 * * * * *
+          X_SCHEDULER_CRON_SLOTS: "*/30 * * * * *"
           X_SCHEDULER_CRON_TYPES: 0 0 0 * * *
           X_SCHEDULER_POOL_SIZE: 10
 
