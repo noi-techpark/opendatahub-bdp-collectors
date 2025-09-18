@@ -69,6 +69,8 @@ jobs:
           X_SCHEDULER_CRON_EXECUTE: 0 */10 * * * ?
           X_SCHEDULER_POOL_SIZE: 10
 
+          X_FORECAST_ENDPOINT: http://docker05.opendatahub.com:1006/result.json
+
 
       - name: Build project
         uses: noi-techpark/github-actions/maven-build@v2
