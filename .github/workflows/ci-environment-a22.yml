@@ -109,79 +109,79 @@ jobs:
 
 
   # Deploy Production
-  deploy-prod-environment-a22:
-    runs-on: ubuntu-22.04
-    if: github.ref == 'refs/heads/prod'
-    needs: test
-    concurrency: deploy-prod-environment-a22
-    env:
-      KEYCLOAK_URL: https://auth.opendatahub.com
-    steps:
-      - name: Checkout source code
-        uses: noi-techpark/github-actions/checkout@v2
-      - name: Create .env file
-        uses: noi-techpark/github-actions/env-file@v2
-        with:
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-        env:
-          # Data Collector config
-          X_MQTT_USERNAME: ${{ secrets.ENVIRONMENT_A22_MQTT_USERNAME }}
-          X_MQTT_PASSWORD: ${{ secrets.ENVIRONMENT_A22_MQTT_PASSWORD }}
-          X_MQTT_URI: ${{ secrets.ENVIRONMENT_A22_MQTT_URI }}
-          X_MQTT_PORT: ${{ secrets.ENVIRONMENT_A22_MQTT_PORT }}
-          X_MEASUREMENT_PERIOD: 60
+  # deploy-prod-environment-a22:
+  #   runs-on: ubuntu-22.04
+  #   if: github.ref == 'refs/heads/prod'
+  #   needs: test
+  #   concurrency: deploy-prod-environment-a22
+  #   env:
+  #     KEYCLOAK_URL: https://auth.opendatahub.com
+  #   steps:
+  #     - name: Checkout source code
+  #       uses: noi-techpark/github-actions/checkout@v2
+  #     - name: Create .env file
+  #       uses: noi-techpark/github-actions/env-file@v2
+  #       with:
+  #         working-directory: ${{ env.WORKING_DIRECTORY }}
+  #       env:
+  #         # Data Collector config
+  #         X_MQTT_USERNAME: ${{ secrets.ENVIRONMENT_A22_MQTT_USERNAME }}
+  #         X_MQTT_PASSWORD: ${{ secrets.ENVIRONMENT_A22_MQTT_PASSWORD }}
+  #         X_MQTT_URI: ${{ secrets.ENVIRONMENT_A22_MQTT_URI }}
+  #         X_MQTT_PORT: ${{ secrets.ENVIRONMENT_A22_MQTT_PORT }}
+  #         X_MEASUREMENT_PERIOD: 60
 
-          # General deployment options
-          X_COMPOSE_PROJECT_NAME: ${{ env.PROJECT_NAME }}
-          X_DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
-          X_DOCKER_TAG: ${{ env.DOCKER_TAG }}
-          X_JAVA_OPTIONS: -Xms128m -Xmx512m
+  #         # General deployment options
+  #         X_COMPOSE_PROJECT_NAME: ${{ env.PROJECT_NAME }}
+  #         X_DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
+  #         X_DOCKER_TAG: ${{ env.DOCKER_TAG }}
+  #         X_JAVA_OPTIONS: -Xms128m -Xmx512m
 
-          # Open Data Hub Writer Connectivity
-          X_authorizationUri: ${{ env.KEYCLOAK_URL }}/auth
-          X_tokenUri: ${{ env.KEYCLOAK_URL }}/auth/realms/noi/protocol/openid-connect/token
-          X_clientId: odh-mobility-datacollector
-          X_clientName: odh-mobility-datacollector
-          X_clientSecret: ${{ secrets.DATACOLLECTORS_CLIENT_SECRET_PROD }}
-          X_scope: openid
-          X_BASE_URI: https://mobility.share.opendatahub.com/json
+  #         # Open Data Hub Writer Connectivity
+  #         X_authorizationUri: ${{ env.KEYCLOAK_URL }}/auth
+  #         X_tokenUri: ${{ env.KEYCLOAK_URL }}/auth/realms/noi/protocol/openid-connect/token
+  #         X_clientId: odh-mobility-datacollector
+  #         X_clientName: odh-mobility-datacollector
+  #         X_clientSecret: ${{ secrets.DATACOLLECTORS_CLIENT_SECRET_PROD }}
+  #         X_scope: openid
+  #         X_BASE_URI: https://mobility.share.opendatahub.com/json
 
-          # Logging
-          X_ROOT_LOG_LEVEL: info
-          X_LOG_LEVEL: info
-          X_LOG_STYLE: json
-          X_provenance_name: ${{ env.PROJECT_NAME }}
-          X_provenance_version: ${{ github.sha }}
+  #         # Logging
+  #         X_ROOT_LOG_LEVEL: info
+  #         X_LOG_LEVEL: info
+  #         X_LOG_STYLE: json
+  #         X_provenance_name: ${{ env.PROJECT_NAME }}
+  #         X_provenance_version: ${{ github.sha }}
 
-          # Scheduler
-          X_SCHEDULER_CRON_DATA: 0 */1 * * * *
-          X_SCHEDULER_CRON_TYPES: 0 */5 * * * *
-          X_SCHEDULER_CRON_STATIONS: 0 */5 * * * *
-          X_SCHEDULER_POOL_SIZE: 10
+  #         # Scheduler
+  #         X_SCHEDULER_CRON_DATA: 0 */1 * * * *
+  #         X_SCHEDULER_CRON_TYPES: 0 */5 * * * *
+  #         X_SCHEDULER_CRON_STATIONS: 0 */5 * * * *
+  #         X_SCHEDULER_POOL_SIZE: 10
 
-      - name: Build project
-        uses: noi-techpark/github-actions/maven-build@v2
-        with:
-          working-directory: ${{ env.WORKING_DIRECTORY }}
-          java-version: ${{ env.JAVA_VERSION }}
-          build-command: 'mvn -B -DskipTests -DfinalName=ROOT clean package'
+  #     - name: Build project
+  #       uses: noi-techpark/github-actions/maven-build@v2
+  #       with:
+  #         working-directory: ${{ env.WORKING_DIRECTORY }}
+  #         java-version: ${{ env.JAVA_VERSION }}
+  #         build-command: 'mvn -B -DskipTests -DfinalName=ROOT clean package'
 
-      - name: Build and push images
-        uses: noi-techpark/github-actions/docker-build-and-push@v2
-        with:
-          working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure
-          docker-username: ${{ github.actor }}
-          docker-password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Build and push images
+  #       uses: noi-techpark/github-actions/docker-build-and-push@v2
+  #       with:
+  #         working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure
+  #         docker-username: ${{ github.actor }}
+  #         docker-password: ${{ secrets.GITHUB_TOKEN }}
 
 
-      - name: Deploy application
-        uses: noi-techpark/github-actions/docker-deploy@v2
-        with:
-          working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure/ansible
-          hosts: 'prod'
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          docker-username: 'noi-techpark-bot'
-          docker-password: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          project-name: ${{ env.PROJECT_NAME }}
+  #     - name: Deploy application
+  #       uses: noi-techpark/github-actions/docker-deploy@v2
+  #       with:
+  #         working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure/ansible
+  #         hosts: 'prod'
+  #         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         docker-username: 'noi-techpark-bot'
+  #         docker-password: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+  #         project-name: ${{ env.PROJECT_NAME }}
 
 
