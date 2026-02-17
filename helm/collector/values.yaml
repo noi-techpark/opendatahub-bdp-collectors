@@ -1,0 +1,22 @@
+image:
+  repository: your-docker-image
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  enabled: true
+  port: 8080
+  type: ClusterIP
+
+replicaCount: 1
+
+resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+
+# Populated at deploy time via: --set-file envFile=.env
+envFile: ""
