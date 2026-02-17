@@ -21,7 +21,7 @@ spec:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if .Values.envFile }}
+          {{- if .Values.envVars }}
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-env
