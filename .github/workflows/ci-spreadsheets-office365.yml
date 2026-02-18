@@ -67,7 +67,7 @@ jobs:
           X_COMPOSE_PROJECT_NAME: ${{ env.PROJECT_NAME }}
           X_DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
           X_DOCKER_TAG: ${{ env.DOCKER_TAG }}
-          X__JAVA_OPTIONS: -Xms128m -Xmx2048m -XX:G1PeriodicGCSystemLoadThreshold=0 -XX:G1PeriodicGCInterval=20000 -XX:-G1PeriodicGCInvokesConcurrent -XX:+UseG1GC
+          X_JAVA_OPTS: -Xms128m -Xmx2048m -XX:G1PeriodicGCSystemLoadThreshold=0 -XX:G1PeriodicGCInterval=20000 -XX:-G1PeriodicGCInvokesConcurrent -XX:+UseG1GC
 
           # Open Data Hub Writer Connectivity
           X_authorizationUri: ${{ env.KEYCLOAK_URL }}/auth
