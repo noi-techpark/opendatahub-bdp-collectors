@@ -81,6 +81,13 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           build-command: 'mvn -B -DskipTests -DfinalName=ROOT clean package'
 
+      - name: Build and push images
+        uses: noi-techpark/github-actions/docker-build-and-push@v2
+        with:
+          working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure
+          docker-username: ${{ github.actor }}
+          docker-password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Generate values.yaml
         run: |
           # Convert .env to YAML map
