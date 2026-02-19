@@ -14,7 +14,7 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;

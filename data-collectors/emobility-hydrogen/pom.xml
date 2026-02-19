@@ -38,9 +38,9 @@ SPDX-License-Identifier: CC0-1.0
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.annotation</groupId>
-			<artifactId>jakarta.annotation-api</artifactId>
-			<version>1.3.5</version>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
