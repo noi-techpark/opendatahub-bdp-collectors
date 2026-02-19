@@ -11,7 +11,7 @@ env:
   PROJECT_NAME: odh-mobility-dc-environment-appa-bz-tenminutes
   DOCKER_IMAGE: ghcr.io/${{ github.repository }}/odh-mobility-dc-environment-appa-bz-tenminutes
   DOCKER_TAG: ${{ github.sha }}
-  JAVA_VERSION: '8'
+  JAVA_VERSION: '17'
   SSH_FOLDER: data-collectors/environment-appa-bz-tenminutes/src/main/resources/META-INF/.ssh
   FTP_KEYFILE: ${{ secrets.ENVIRONMENT_APPA_BZ_TENMINUTES_SFTP_KEY_BASE64}}
   FTP_KNOWN_HOSTS: ${{ secrets.ENVIRONMENT_APPA_BZ_TENMINUTES_SFTP_KNOWN_HOSTS_BASE64}}

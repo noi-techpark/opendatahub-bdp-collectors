@@ -11,7 +11,7 @@ env:
   PROJECT_NAME: odh-mobility-dc-spreadsheets-office365
   DOCKER_IMAGE: ghcr.io/${{ github.repository }}/odh-mobility-dc-spreadsheets-office365
   DOCKER_TAG: ${{ github.sha }}
-  JAVA_VERSION: '8'
+  JAVA_VERSION: '17'
   CERT_BASE64: ${{ secrets.SPREADSHEETS_OFFICE365_CERT_B64 }}
   PKCS8_KEY_BASE64: ${{ secrets.SPREADSHEETS_OFFICE365_PKCS8_KEY_B64 }}
   SCHEDULER_CRON: "0 */10 * * * *"

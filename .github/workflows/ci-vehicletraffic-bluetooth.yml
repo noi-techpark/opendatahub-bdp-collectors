@@ -11,7 +11,7 @@ env:
   PROJECT_NAME: odh-mobility-dc-vehicletraffic-bluetooth
   DOCKER_IMAGE: ghcr.io/${{ github.repository }}/odh-mobility-dc-vehicletraffic-bluetooth
   DOCKER_TAG: ${{ github.sha }}
-  JAVA_VERSION: '8'
+  JAVA_VERSION: '17'
   CLIENT_SECRET_BASE64: ${{ secrets.SPREADSHEETS_GOOGLE_CLIENT_SECRET_BASE64 }}
   STORED_CREDENTIAL_BASE64: ${{ secrets.SPREADSHEETS_GOOGLE_STORED_CREDENTIAL_BASE64 }}
 

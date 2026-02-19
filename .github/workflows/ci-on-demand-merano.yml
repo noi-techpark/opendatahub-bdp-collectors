@@ -11,7 +11,7 @@ env:
   PROJECT_NAME: odh-mobility-dc-on-demand-merano
   DOCKER_IMAGE: ghcr.io/${{ github.repository }}/odh-mobility-dc-on-demand-merano
   DOCKER_TAG: ${{ github.sha }}
-  JAVA_VERSION: '8'
+  JAVA_VERSION: '17'
   USERNAME: ${{ secrets.ON_DEMAND_MERANO_USERNAME }}
   PASSWORD: ${{ secrets.ON_DEMAND_MERANO_PASSWORD }}
 
