@@ -55,7 +55,7 @@ jobs:
           # Open Data Hub Writer Connectivity
           X_OAUTH_AUTH_URI: ${{ env.KEYCLOAK_URL }}/auth
           X_OAUTH_TOKEN_URI: ${{ env.KEYCLOAK_URL }}/auth/realms/noi/protocol/openid-connect/token
-          X_OAUTH_BASE_URI: https://mobility.share.opendatahub.testingmachine.eu/json
+          X_OAUTH_BASE_URI: http://bdp-core.core.svc.cluster.local/json
           X_OAUTH_CLIENT_ID: odh-mobility-datacollector
           X_OAUTH_CLIENT_NAME: odh-mobility-datacollector
           X_OAUTH_CLIENT_SECRET: ${{ secrets.DATACOLLECTORS_CLIENT_SECRET_TEST }}

@@ -61,7 +61,7 @@ jobs:
           X_clientName: odh-mobility-datacollector
           X_clientSecret: ${{ secrets.DATACOLLECTORS_CLIENT_SECRET_TEST }}
           X_scope: openid
-          X_BASE_URI: https://mobility.share.opendatahub.testingmachine.eu/json
+          X_BASE_URI: http://bdp-core.core.svc.cluster.local/json
 
           # Google sheet enriched metadata fields
           X_SPREADSHEET_ID: 1QMe22_3GrhErkqRY7m7ZKr19YbD1HZ5ZWuB-G3n0KoY
