@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/bikesharing-bz/**"
       - ".github/workflows/ci-bikesharing-bz.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/bikesharing-bz

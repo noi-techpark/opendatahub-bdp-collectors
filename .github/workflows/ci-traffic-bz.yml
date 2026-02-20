@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/traffic-bz/**"
       - ".github/workflows/ci-traffic-bz.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/traffic-bz

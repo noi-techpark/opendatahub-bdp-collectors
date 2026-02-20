@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/parking-tn/**"
       - ".github/workflows/ci-parking-tn.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/parking-tn

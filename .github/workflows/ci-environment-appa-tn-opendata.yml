@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/environment-appa-tn-opendata/**"
       - ".github/workflows/ci-environment-appa-tn-opendata.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/environment-appa-tn-opendata

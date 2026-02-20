@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/bikesharing-moqo/**"
       - ".github/workflows/ci-bikesharing-moqo.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/bikesharing-moqo

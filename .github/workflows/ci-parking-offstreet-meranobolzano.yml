@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/parking-offstreet-meranobolzano/**"
       - ".github/workflows/ci-parking-offstreet-meranobolzano.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/parking-offstreet-meranobolzano

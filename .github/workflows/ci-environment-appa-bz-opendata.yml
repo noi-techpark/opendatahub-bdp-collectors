@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/environment-appa-bz-opendata/**"
       - ".github/workflows/ci-environment-appa-bz-opendata.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/environment-appa-bz-opendata

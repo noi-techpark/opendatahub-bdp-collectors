@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/bike-chargers/**"
       - ".github/workflows/ci-bike-chargers.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/bike-chargers

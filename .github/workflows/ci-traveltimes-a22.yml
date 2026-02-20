@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/traveltimes-a22/**"
       - ".github/workflows/ci-traveltimes-a22.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/traveltimes-a22

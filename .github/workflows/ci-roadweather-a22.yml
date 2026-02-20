@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/roadweather-a22/**"
       - ".github/workflows/ci-roadweather-a22.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/roadweather-a22

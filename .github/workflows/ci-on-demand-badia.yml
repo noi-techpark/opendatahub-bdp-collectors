@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/on-demand-merano/**"
       - ".github/workflows/ci-on-demand-badia.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/on-demand-merano

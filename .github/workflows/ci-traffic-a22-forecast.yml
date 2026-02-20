@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/traffic-a22-forecast/**"
       - ".github/workflows/ci-traffic-a22-forecast.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/traffic-a22-forecast

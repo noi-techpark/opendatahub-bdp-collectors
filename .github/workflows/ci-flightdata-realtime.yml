@@ -9,6 +9,7 @@ on:
     paths:
       - "data-collectors/flightdata-realtime/**"
       - ".github/workflows/ci-flightdata-realtime.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/flightdata-realtime

@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/environment-appa-tn-tenminutes/**"
       - ".github/workflows/ci-environment-appa-tn-tenminutes.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/environment-appa-tn-tenminutes

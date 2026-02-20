@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/vehicletraffic-bluetooth/**"
       - ".github/workflows/ci-vehicletraffic-bluetooth.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/vehicletraffic-bluetooth

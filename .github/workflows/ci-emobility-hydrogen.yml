@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/emobility-hydrogen/**"
       - ".github/workflows/ci-emobility-hydrogen.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/emobility-hydrogen

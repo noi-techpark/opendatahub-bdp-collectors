@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/meteorology-bz/**"
       - ".github/workflows/ci-meteorology-bz.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/meteorology-bz

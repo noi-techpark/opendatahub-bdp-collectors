@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/parking-onstreet-merano/**"
       - ".github/workflows/ci-parking-onstreet-merano.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/parking-onstreet-merano

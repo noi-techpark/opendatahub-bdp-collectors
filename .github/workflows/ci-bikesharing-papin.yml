@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/bikesharing-papin/**"
       - ".github/workflows/ci-bikesharing-papin.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/bikesharing-papin

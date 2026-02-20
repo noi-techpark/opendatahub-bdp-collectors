@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/parking-forecast/**"
       - ".github/workflows/ci-parking-forecast.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/parking-forecast

@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/event-a22/**"
       - ".github/workflows/ci-event-a22.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/event-a22

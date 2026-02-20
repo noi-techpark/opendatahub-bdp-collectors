@@ -9,6 +9,7 @@ on:
     paths:
       - "data-collectors/radelt/**"
       - ".github/workflows/ci-radelt.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/radelt

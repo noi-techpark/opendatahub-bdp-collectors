@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/spreadsheets-office365/**"
       - ".github/workflows/ci-spreadsheets-office365.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/spreadsheets-office365

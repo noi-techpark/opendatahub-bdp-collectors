@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/vms-a22/**"
       - ".github/workflows/ci-vms-a22.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/vms-a22

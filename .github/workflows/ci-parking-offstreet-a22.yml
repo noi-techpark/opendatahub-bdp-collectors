@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/parking-offstreet-a22/**"
       - ".github/workflows/ci-parking-offstreet-a22.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/parking-offstreet-a22

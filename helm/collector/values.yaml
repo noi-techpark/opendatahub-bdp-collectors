@@ -10,13 +10,13 @@ service:
 
 replicaCount: 1
 
-resources: {}
+resources: 
   # limits:
   #   cpu: 500m
   #   memory: 512Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 256Mi
+  requests:
+    cpu: 5m
+    memory: 300Mi
 
 # Populated at deploy time via: --set-file envFile=.env
 envFile: ""

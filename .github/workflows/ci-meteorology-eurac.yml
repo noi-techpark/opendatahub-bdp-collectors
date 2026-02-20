@@ -5,6 +5,7 @@ on:
     paths:
       - "data-collectors/meteorology-eurac/**"
       - ".github/workflows/ci-meteorology-eurac.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/meteorology-eurac
