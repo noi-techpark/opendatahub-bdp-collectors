@@ -114,6 +114,24 @@ jobs:
           image:
             repository: ${{ env.DOCKER_IMAGE }}
             tag: "${{ env.DOCKER_TAG }}"
+          service:
+            enabled: true
+            port: 8080
+            type: ClusterIP
+          ingress:
+            enabled: true
+            className: nginx
+            annotations:
+              cert-manager.io/issuer: letsencrypt-prod
+            hosts:
+              - host: vehicletraffic-bluetooth.dev.testingmachine.eu
+                paths:
+                  - path: /
+                    pathType: Prefix
+            tls:
+              - secretName: tls-vehicletraffic-bluetooth
+                hosts:
+                  - vehicletraffic-bluetooth.dev.testingmachine.eu
           envVars:
           $ENV_MAP
 
