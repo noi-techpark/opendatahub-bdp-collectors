@@ -121,16 +121,11 @@ jobs:
           envVars:
           $ENV_MAP
 
-          configMaps:
-            credentials:
-              client_secret.json: |
-          $(sed 's/^/      /' ${{env.WORKING_DIRECTORY}}/credentials/client_secret.json)
-              StoredCredential: |
-          $(sed 's/^/      /' ${{env.WORKING_DIRECTORY}}/credentials/StoredCredential)
-
-          configMapMounts:
-            credentials:
-              mountPath: /credentials
+          secretFiles:
+            client_secret.json: $(base64 -w 0 ${{env.WORKING_DIRECTORY}}/credentials/client_secret.json)
+            StoredCredential: $(base64 -w 0 ${{env.WORKING_DIRECTORY}}/credentials/StoredCredential)
+          
+          secretFilesMountPath: /credentials
           EOF
           
       - name: Deploy on cluster  

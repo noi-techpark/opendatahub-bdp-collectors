@@ -33,13 +33,13 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            {{- range $name, $files := .Values.configMaps }}
-            - name: {{ $name }}
-              mountPath: {{ (index $.Values.configMapMounts $name).mountPath }}
+            {{- if .Values.secretFiles }}
+            - name: secret-files
+              mountPath: {{ .Values.secretFilesMountPath }}
             {{- end }}
       volumes:
-        {{- range $name, $files := .Values.configMaps }}
-        - name: {{ $name }}
-          configMap:
-            name: {{ include "chart.fullname" $ }}-{{ $name }}
+        {{- if .Values.secretFiles }}
+        - name: secret-files
+          secret:
+            secretName: {{ include "chart.fullname" . }}-files
         {{- end }}
