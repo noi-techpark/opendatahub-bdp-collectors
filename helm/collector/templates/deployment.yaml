@@ -41,5 +41,5 @@ spec:
         {{- if .Values.secretFiles }}
         - name: secret-files
           secret:
-            secretName: {{ include "chart.fullname" . }}-files
+            secretName: {{ .Release.Name }}-files
         {{- end }}
