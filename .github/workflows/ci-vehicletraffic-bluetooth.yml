@@ -78,7 +78,6 @@ jobs:
       - name: Retrieve secret files and decode it to a file
         run: |
           echo $CLIENT_SECRET_BASE64 | base64 --decode > $WORKING_DIRECTORY/credentials/client_secret.json
-          echo $STORED_CREDENTIAL_BASE64 | base64 --decode > $WORKING_DIRECTORY/credentials/StoredCredential
 
       - name: Build project
         uses: noi-techpark/github-actions/maven-build@v2
@@ -116,6 +115,11 @@ jobs:
             tag: "${{ env.DOCKER_TAG }}"
           envVars:
           $ENV_MAP
+
+          secretFiles:
+            client_secret.json: $(base64 -w 0 ${{env.WORKING_DIRECTORY}}/credentials/client_secret.json)
+          
+          secretFilesMountPath: /credentials
           EOF
           
       - name: Deploy on cluster  
