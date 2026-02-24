@@ -45,9 +45,6 @@ public class ParkingPusher extends NonBlockingJSONPusher{
 	public static final int[] PREDICTION_FORECAST_TIMES_IN_MINUTES = {30,60,90,120,150,180,210,240};
 
 	@Autowired
-	private ParkingClient parkingClient;
-
-	@Autowired
 	private ParkingMeranoClient parkingMeranoClient;
 
 	@Autowired
@@ -62,14 +59,8 @@ public class ParkingPusher extends NonBlockingJSONPusher{
     @Autowired
 	private MetadataEnrichment metadataEnrichment;
 
-	public void connectToParkingServer() {
-		parkingClient.connect();
-	}
-
 	public void pushParkingMetaData() throws IOException {
 		StationList stations = new StationList();
-		connectToParkingServer();
-		parkingClient.insertParkingMetaDataInto(stations);
 
 		StationList meStations = new StationList();
 		parkingMeranoClient.insertParkingMetaDataInto(meStations);
@@ -103,14 +94,7 @@ public class ParkingPusher extends NonBlockingJSONPusher{
 	}
 
 	public void pushData() {
-		connectToParkingServer();
-		connectToDataCenterCollector();
-		DataMapDto<RecordDtoImpl> bolzanoDataMap = new DataMapDto<RecordDtoImpl>();
 		DataMapDto<RecordDtoImpl> meranoDataMap = new DataMapDto<RecordDtoImpl>();
-
-		this.provenance = new ProvenanceDto(null, env.getProperty("provenance_name"), env.getProperty("provenance_version"), env.getProperty("pbz_origin"));
-		parkingClient.insertDataInto(bolzanoDataMap);
-		pushData(bolzanoDataMap);
 
 		this.provenance = new ProvenanceDto(null, env.getProperty("provenance_name"), env.getProperty("provenance_version"), MUNICIPALITY_MERANO);;
 		parkingMeranoClient.insertDataInto(meranoDataMap);

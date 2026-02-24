@@ -50,6 +50,7 @@ public abstract class AbstractParkingForecastJSONPusher extends NonBlockingJSONP
         LOG.info("start init");
         origin = connectorConfiguration.getOrigin();
         super.init();
+        client = client.mutate().codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)).build();
         LOG.info("end init");
     }
 

@@ -5,24 +5,25 @@ on:
     paths:
       - "data-collectors/vehicletraffic-bluetooth/**"
       - ".github/workflows/ci-vehicletraffic-bluetooth.yml"
+      - "helm/collector/**"
 
 env:
   WORKING_DIRECTORY: data-collectors/vehicletraffic-bluetooth
   PROJECT_NAME: odh-mobility-dc-vehicletraffic-bluetooth
   DOCKER_IMAGE: ghcr.io/${{ github.repository }}/odh-mobility-dc-vehicletraffic-bluetooth
   DOCKER_TAG: ${{ github.sha }}
-  JAVA_VERSION: '8'
+  JAVA_VERSION: '17'
   CLIENT_SECRET_BASE64: ${{ secrets.SPREADSHEETS_GOOGLE_CLIENT_SECRET_BASE64 }}
   STORED_CREDENTIAL_BASE64: ${{ secrets.SPREADSHEETS_GOOGLE_STORED_CREDENTIAL_BASE64 }}
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source code
         uses: noi-techpark/github-actions/checkout@v2
       - name: REUSE Compliance Check
-        uses: fsfe/reuse-action@v1
+        uses: fsfe/reuse-action@v6
       - name: Test code
         uses: noi-techpark/github-actions/maven-test@v2
         with:
@@ -32,7 +33,7 @@ jobs:
 
   # Deploy Test
   deploy-test-vehicletraffic-bluetooth:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/main'
     needs: test
     concurrency: deploy-test-vehicletraffic-bluetooth
@@ -50,7 +51,8 @@ jobs:
           X_COMPOSE_PROJECT_NAME: ${{ env.PROJECT_NAME }}
           X_DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
           X_DOCKER_TAG: ${{ env.DOCKER_TAG }}
-          X_JAVA_OPTIONS: -Xms128m -Xmx512m
+          X_JAVA_OPTS: -Xms128m -Xmx512m -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:+UseG1GC -XX:G1PeriodicGCInterval=10000 -XX:G1PeriodicGCSystemLoadThreshold=0
+
           X_SERVER_PORT: 1007
 
           # Open Data Hub Writer Connectivity
@@ -60,7 +62,7 @@ jobs:
           X_clientName: odh-mobility-datacollector
           X_clientSecret: ${{ secrets.DATACOLLECTORS_CLIENT_SECRET_TEST }}
           X_scope: openid
-          X_BASE_URI: https://mobility.share.opendatahub.testingmachine.eu/json
+          X_BASE_URI: http://bdp-core.core.svc.cluster.local/json
 
           # Logging
           X_LOG_LEVEL: info
@@ -92,21 +94,70 @@ jobs:
           docker-username: ${{ github.actor }}
           docker-password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate values.yaml
+        run: |
+          # Convert .env to YAML map
+          cat > /tmp/convert_env.awk <<'AWK'
+          /^[^#]/ && /=/ {
+            key = $0
+            sub(/=.*/, "", key)
+            val = $0
+            sub(/^[^=]*=/, "", val)
+            gsub(/"/, "\\\"", val)
+            printf "  %s: \"%s\"\n", key, val
+          }
+          AWK
+          
+          ENV_MAP=$(awk -f /tmp/convert_env.awk ${{ env.WORKING_DIRECTORY}}/.env)
+          
+          cat > values.yaml <<EOF
+          image:
+            repository: ${{ env.DOCKER_IMAGE }}
+            tag: "${{ env.DOCKER_TAG }}"
+          service:
+            enabled: true
+            port: 8080
+            type: ClusterIP
+          ingress:
+            enabled: true
+            className: nginx
+            annotations:
+              cert-manager.io/issuer: letsencrypt-prod
+            hosts:
+              - host: vehicletraffic-bluetooth.dev.testingmachine.eu
+                paths:
+                  - path: /
+                    pathType: Prefix
+            tls:
+              - secretName: tls-vehicletraffic-bluetooth
+                hosts:
+                  - vehicletraffic-bluetooth.dev.testingmachine.eu
+          envVars:
+          $ENV_MAP
 
-      - name: Deploy application
-        uses: noi-techpark/github-actions/docker-deploy@v2
+          secretFiles:
+            client_secret.json: $(base64 -w 0 ${{env.WORKING_DIRECTORY}}/credentials/client_secret.json)
+            StoredCredential: $(base64 -w 0 ${{env.WORKING_DIRECTORY}}/credentials/StoredCredential)
+          
+          secretFilesMountPath: /credentials
+          EOF
+          
+      - name: Deploy on cluster  
+        uses: noi-techpark/github-actions/helm-deploy@v2
         with:
-          working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure/ansible
-          hosts: 'test'
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          docker-username: 'noi-techpark-bot'
-          docker-password: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          project-name: ${{ env.PROJECT_NAME }}
+          k8s-name: ${{ env.PROJECT_NAME }}
+          k8s-namespace: legacy-collector
+          chart-path: helm/collector
+          values-file: values.yaml
+          aws-access-key-id: ${{ secrets.AWS_DEV_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_DEV_ACCESS_KEY_SECRET }}
+          aws-eks-cluster-name: aws-main-eu-01
+          aws-region: eu-west-1
 
 
   # Deploy Production
   deploy-prod-vehicletraffic-bluetooth:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/prod'
     needs: test
     concurrency: deploy-prod-vehicletraffic-bluetooth
@@ -124,7 +175,7 @@ jobs:
           X_COMPOSE_PROJECT_NAME: ${{ env.PROJECT_NAME }}
           X_DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
           X_DOCKER_TAG: ${{ env.DOCKER_TAG }}
-          X_JAVA_OPTIONS: -Xms128m -Xmx512m
+          X_JAVA_OPTS: -Xms128m -Xmx512m -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:+UseG1GC -XX:G1PeriodicGCInterval=10000 -XX:G1PeriodicGCSystemLoadThreshold=0
           X_SERVER_PORT: 1007
 
           # Open Data Hub Writer Connectivity
@@ -134,7 +185,7 @@ jobs:
           X_clientName: odh-mobility-datacollector
           X_clientSecret: ${{ secrets.DATACOLLECTORS_CLIENT_SECRET_PROD }}
           X_scope: openid
-          X_BASE_URI: https://mobility.share.opendatahub.com/json
+          X_BASE_URI: http://bdp-core.core.svc.cluster.local/json
 
           # Logging
           X_LOG_LEVEL: "info"
@@ -166,13 +217,56 @@ jobs:
           docker-username: ${{ github.actor }}
           docker-password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate values.yaml
+        run: |
+          # Convert .env to YAML map
+          cat > /tmp/convert_env.awk <<'AWK'
+          /^[^#]/ && /=/ {
+            key = $0
+            sub(/=.*/, "", key)
+            val = $0
+            sub(/^[^=]*=/, "", val)
+            gsub(/"/, "\\\"", val)
+            printf "  %s: \"%s\"\n", key, val
+          }
+          AWK
+          
+          ENV_MAP=$(awk -f /tmp/convert_env.awk ${{ env.WORKING_DIRECTORY}}/.env)
+          
+          cat > values.yaml <<EOF
+          image:
+            repository: ${{ env.DOCKER_IMAGE }}
+            tag: "${{ env.DOCKER_TAG }}"
+          service:
+            enabled: true
+            port: 8080
+            type: ClusterIP
+          ingress:
+            enabled: true
+            className: nginx
+            hosts:
+              - host: boxes.opendatahub.com
+                paths:
+                  - path: /
+                    pathType: Prefix
+          envVars:
+          $ENV_MAP
 
-      - name: Deploy application
-        uses: noi-techpark/github-actions/docker-deploy@v2
+          secretFiles:
+            client_secret.json: $(base64 -w 0 ${{env.WORKING_DIRECTORY}}/credentials/client_secret.json)
+            StoredCredential: $(base64 -w 0 ${{env.WORKING_DIRECTORY}}/credentials/StoredCredential)
+          
+          secretFilesMountPath: /credentials
+          EOF
+          
+      - name: Deploy on cluster  
+        uses: noi-techpark/github-actions/helm-deploy@v2
         with:
-          working-directory: ${{ env.WORKING_DIRECTORY }}/infrastructure/ansible
-          hosts: 'prod'
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          docker-username: 'noi-techpark-bot'
-          docker-password: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          project-name: ${{ env.PROJECT_NAME }}
+          k8s-name: ${{ env.PROJECT_NAME }}
+          k8s-namespace: legacy-collector
+          chart-path: helm/collector
+          values-file: values.yaml
+          aws-access-key-id: ${{ secrets.AWS_PROD_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_PROD_ACCESS_KEY_SECRET }}
+          aws-eks-cluster-name: aws-main-eu-01
+          aws-region: eu-west-1

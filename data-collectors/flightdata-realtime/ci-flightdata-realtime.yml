@@ -15,11 +15,11 @@ env:
   PROJECT_NAME: odh-mobility-dc-flightdata-realtime
   DOCKER_IMAGE: ghcr.io/${{ github.repository }}/odh-mobility-dc-flightdata-realtime
   DOCKER_TAG: ${{ github.sha }}
-  JAVA_VERSION: '8'
+  JAVA_VERSION: '17'
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -32,7 +32,7 @@ jobs:
 
   # Deploy Test
   deploy-test-flightdata-realtime:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/main'
     needs: test
     concurrency: deploy-test-flightdata-realtime
@@ -102,7 +102,7 @@ jobs:
 
   # Deploy Production
   #deploy-prod-flightdata-realtime:
-  #  runs-on: ubuntu-22.04
+  #  runs-on: ubuntu-24.04
   #  if: github.ref == 'refs/heads/prod'
   #  needs: test
   #  concurrency: deploy-prod-flightdata-realtime

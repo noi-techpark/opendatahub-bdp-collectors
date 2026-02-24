@@ -16,11 +16,11 @@ env:
   DOCKER_REGISTRY_HOST: ghcr.io
   DOCKER_IMAGE: ghcr.io/${{ github.repository }}/odh-mobility-dc-meteorology-eurac
   DOCKER_TAG: ${{ github.sha }}
-  JAVA_VERSION: '8'
+  JAVA_VERSION: '17'
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -33,7 +33,7 @@ jobs:
 
   # Deploy Test
   deploy-test-meteorology-eurac:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/main'
     needs: test
     concurrency: deploy-test-meteorology-eurac
@@ -100,7 +100,7 @@ jobs:
 
   # Deploy Production
   deploy-prod-meteorology-eurac:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/prod'
     needs: test
     concurrency: deploy-prod-meteorology-eurac

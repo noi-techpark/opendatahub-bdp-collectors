@@ -92,16 +92,19 @@ public class MeteoTnDataPusher extends NonBlockingJSONPusher {
                 }
 
                 for (MeteoTnMeasurementListDto measurementListDto : measurementsByType) {
-
                     //String measurementListName = measurementListDto.getName();
                     List<MeteoTnMeasurementDto> measurements = measurementListDto.getMeasurements();
 
                     for (MeteoTnMeasurementDto measurementDto : measurements) {
-
                         //Get values from MeasutementDto and convert to SimpleRecordDto
                         String typeName = measurementDto.getTypeName();
                         long timestamp = measurementDto.getDate()!=null ? measurementDto.getDate().getTime() : nowTimestamp;
                         Object value = measurementDto.getValue();
+                        
+                        if(value == null) {
+                            LOG.debug("IGNORE null value  MEASURE:  id="+stationDto.getId()+", typeName="+typeName);
+                            continue;
+                        }
 
                         SimpleRecordDto rec = new SimpleRecordDto();
                         rec.setValue(value);
@@ -124,7 +127,6 @@ public class MeteoTnDataPusher extends NonBlockingJSONPusher {
                         countMeasures++;
                         LOG.debug("ADD  MEASURE:  id="+stationDto.getId()+", typeName="+typeName+"  value="+value);
                     }
-
                 }
 
             } else {

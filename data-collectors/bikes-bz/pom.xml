@@ -32,6 +32,13 @@ SPDX-License-Identifier: CC0-1.0
 			<artifactId>dc-interface</artifactId>
 			<version>7.4.0</version>
 		</dependency>
+		<!-- javax / jakarta compat -->
+		<dependency>
+			<groupId>com.sun.xml.ws</groupId>
+			<artifactId>jaxws-ri</artifactId>
+			<version>2.3.5</version>
+			<type>pom</type>
+		</dependency>
 		<!-- General dependencies for standard applications -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -46,7 +53,6 @@ SPDX-License-Identifier: CC0-1.0
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>net.sf.flexjson</groupId>
 			<artifactId>flexjson</artifactId>
@@ -152,7 +158,7 @@ SPDX-License-Identifier: CC0-1.0
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>2.2</version>
+				<version>3.3.2</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
