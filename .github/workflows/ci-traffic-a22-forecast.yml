@@ -19,7 +19,7 @@ env:
 
 jobs:
   test:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -34,7 +34,7 @@ jobs:
 
   # Deploy Test
   deploy-test-traffic-a22-forecast:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/main'
     environment: test
     needs: test
@@ -142,7 +142,7 @@ jobs:
 
   # Deploy Production
   deploy-prod-traffic-a22-forecast:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/prod'
     environment: prod
     needs: test

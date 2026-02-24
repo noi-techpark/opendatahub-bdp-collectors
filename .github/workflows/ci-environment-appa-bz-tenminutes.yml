@@ -20,7 +20,7 @@ env:
 
 jobs:
   test:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source code
         uses: noi-techpark/github-actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
 
 # Deploy Test
   deploy-test-environment-appa-bz-tenminutes:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/main'
     needs: test
     concurrency: deploy-test-environment-appa-bz-tenminutes
@@ -140,7 +140,7 @@ jobs:
 
   # Deploy Production
   deploy-prod-environment-appa-bz-tenminutes:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/prod'
     needs: test
     concurrency: deploy-prod-environment-appa-bz-tenminutes

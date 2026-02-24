@@ -19,7 +19,7 @@ env:
 
 jobs:
   test:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source code
         uses: noi-techpark/github-actions/checkout@v2
@@ -34,7 +34,7 @@ jobs:
 
 # Deploy Test
   deploy-test-on-demand-badia:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/main'
     needs: test
     concurrency: deploy-test-on-demand-badia
@@ -134,7 +134,7 @@ jobs:
 
   # Deploy Production
   deploy-prod-on-demand-badia:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/prod'
     needs: test
     concurrency: deploy-prod-on-demand-badia

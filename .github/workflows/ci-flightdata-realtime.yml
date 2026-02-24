@@ -20,7 +20,7 @@ env:
 
 jobs:
   test:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -33,7 +33,7 @@ jobs:
 
   # Deploy Test
   deploy-test-flightdata-realtime:
-    runs-on: utunbu-24.04
+    runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/main'
     needs: test
     concurrency: deploy-test-flightdata-realtime
@@ -134,7 +134,7 @@ jobs:
 
   # Deploy Production
   #deploy-prod-flightdata-realtime:
-  #  runs-on: utunbu-24.04
+  #  runs-on: ubuntu-24.04
   #  if: github.ref == 'refs/heads/prod'
   #  needs: test
   #  concurrency: deploy-prod-flightdata-realtime
