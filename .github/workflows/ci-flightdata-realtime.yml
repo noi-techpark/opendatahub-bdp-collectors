@@ -20,7 +20,7 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: utunbu-24.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -33,7 +33,7 @@ jobs:
 
   # Deploy Test
   deploy-test-flightdata-realtime:
-    runs-on: ubuntu-22.04
+    runs-on: utunbu-24.04
     if: github.ref == 'refs/heads/main'
     needs: test
     concurrency: deploy-test-flightdata-realtime
@@ -134,7 +134,7 @@ jobs:
 
   # Deploy Production
   #deploy-prod-flightdata-realtime:
-  #  runs-on: ubuntu-22.04
+  #  runs-on: utunbu-24.04
   #  if: github.ref == 'refs/heads/prod'
   #  needs: test
   #  concurrency: deploy-prod-flightdata-realtime
@@ -152,7 +152,7 @@ jobs:
   #        X_COMPOSE_PROJECT_NAME: ${{ env.PROJECT_NAME }}
   #        X_DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
   #        X_DOCKER_TAG: ${{ env.DOCKER_TAG }}
-  #        X_JAVA_OPTIONS: -Xms128m -Xmx512m
+  #        X_JAVA_OPTS: -Xms128m -Xmx512m -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:+UseG1GC -XX:G1PeriodicGCInterval=10000 -XX:G1PeriodicGCSystemLoadThreshold=0
 
   #        # Open Data Hub Writer Connectivity
   #        X_authorizationUri: ${{ env.KEYCLOAK_URL }}/auth
@@ -161,7 +161,7 @@ jobs:
   #        X_clientName: odh-mobility-datacollector
   #        X_clientSecret: ${{ secrets.DATACOLLECTORS_CLIENT_SECRET_PROD }}
   #        X_scope: openid
-  #        X_BASE_URI: https://mobility.share.opendatahub.com/json
+  #        X_BASE_URI: http://bdp-core.core.svc.cluster.local/json
 
   #        # Logging
   #        X_LOG_LEVEL: "info"
