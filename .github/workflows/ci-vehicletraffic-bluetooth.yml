@@ -249,6 +249,10 @@ jobs:
                 paths:
                   - path: /
                     pathType: Prefix
+              - host: boxes.opendatahub.bz.it
+                paths:
+                  - path: /
+                    pathType: Prefix
           envVars:
           $ENV_MAP
 
