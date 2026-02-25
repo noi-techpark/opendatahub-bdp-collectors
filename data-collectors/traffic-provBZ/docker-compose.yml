@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+services:
+  app:
+    image: maven:3-eclipse-temurin-17-alpine
+    network_mode: host
+    env_file:
+      - .env
+    environment:
+      MAVEN_CONFIG: /var/maven/.m2
+    command: sh -c "mvn -Duser.home=/var/maven -DskipTests clean package spring-boot:repackage &&  java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=localhost:9000 -jar target/ROOT.jar"
+    volumes:
+      - ~/.m2/:/var/maven/.m2
+      - ./:/code
+    working_dir: /code
+    tty: true
