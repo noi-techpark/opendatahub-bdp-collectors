@@ -1,0 +1,44 @@
+##### VSCODE / REST Client
+# Create a .env file and set the corresponding variables
+# See all $dotenv fields below
+
+# .env vars
+@user = {{$dotenv FAMAS_USER}}
+@password = {{$dotenv FAMAS_PASSWORD}}
+
+# other vars
+@endpoint-classificationSchemas = https://webservices.trafficopab.famassystem.it/api/v1/SchemiDiClassificazione
+@endpoint-stationsData-url=https://webservices.trafficopab.famassystem.it/api/v1/AnagrafichePostazioni
+@endpoint-aggregatedDataOnStations-url=https://webservices.trafficopab.famassystem.it/api/v1/DatiAggregatiSuPostazioni
+@endpoint-passageDataOnStations-url=https://webservices.trafficopab.famassystem.it/api/v1/DatiPassaggiSuPostazioni
+
+### Classification 
+GET {{endpoint-classificationSchemas}} 
+Authorization: Basic {{user}}:{{password}}
+
+### Stations
+GET {{endpoint-stationsData-url}} 
+Authorization: Basic {{user}}:{{password}}
+
+### Aggregated data
+POST {{endpoint-aggregatedDataOnStations-url}} 
+Authorization: Basic {{user}}:{{password}}
+Content-type: application/json
+
+{
+    "IdPostazioni": ["3", "4"],
+    "InizioPeriodo": "2022-12-09T00:00:00",
+    "FinePeriodo":"2022-12-09T10:00:00",
+}
+
+
+### Aggregated data
+POST {{endpoint-passageDataOnStations-url}} 
+Authorization: Basic {{user}}:{{password}}
+Content-type: application/json
+
+{
+    "IdPostazioni": ["3", "4"],
+    "InizioPeriodo": "2022-12-09T00:00:00",
+    "FinePeriodo":"2022-12-09T10:00:00",
+}
