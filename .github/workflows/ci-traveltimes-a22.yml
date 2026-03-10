@@ -34,7 +34,7 @@ jobs:
   # Deploy Test
   deploy-test-a22-traveltimes:
     runs-on: ubuntu-24.04
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev/a22-traveltimes'
     needs: test
     concurrency: deploy-test-a22-traveltimes
     env:
