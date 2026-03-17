@@ -42,7 +42,30 @@ Accept: */*
 {
 	"request": {
         "sessionId": "{{token}}",
-        "idtratto": "1873-1872",
+        "fromData": "/Date({{fromTs}}000+0000)/",
+        "toData": "/Date({{toTs}}999+0000)/"
+    }
+}
+
+### Get stations CCTV 
+POST {{host}}/percorrenze/anagraficaTVCC
+Content-Type: application/json
+User-Agent: NOI/A22TraveltimesConnector
+Accept: */*
+
+{
+    "sessionId": "{{token}}"
+}
+
+### Get travel times CCTV (measurements)
+POST {{host}}/percorrenze/tempiTVCC
+Content-Type: application/json
+User-Agent: NOI/A22TraveltimesConnector
+Accept: */*
+
+{
+	"request": {
+        "sessionId": "{{token}}",
         "fromData": "/Date({{fromTs}}000+0000)/",
         "toData": "/Date({{toTs}}999+0000)/"
     }
