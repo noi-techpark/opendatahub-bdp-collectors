@@ -8,7 +8,7 @@ services:
       - .env
     environment:
       MAVEN_CONFIG: /var/maven/.m2
-      MAVEN_OPTS: -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9000"
+      MAVEN_OPTS: -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:9000"
     command: >
       mvn
       -Duser.home=/var/maven
