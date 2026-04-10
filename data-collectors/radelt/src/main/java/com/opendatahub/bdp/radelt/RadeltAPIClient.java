@@ -5,10 +5,8 @@
 package com.opendatahub.bdp.radelt;
 
 import java.net.URI;
-import java.util.Date;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -16,7 +14,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opendatahub.bdp.radelt.dto.aktionen.AktionenResponseDto;
 import com.opendatahub.bdp.radelt.dto.organisationen.OrganisationenResponseDto;
@@ -32,6 +30,8 @@ import com.opendatahub.bdp.radelt.dto.organisationen.OrganisationenResponseDto;
 public class RadeltAPIClient {
 
     private final Logger LOG = LoggerFactory.getLogger(RadeltAPIClient.class);
+    private final ObjectMapper mapper = new ObjectMapper()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     public enum Language {
         ITA, GER
@@ -78,7 +78,6 @@ public class RadeltAPIClient {
                 if (entity != null) {
                     String result = EntityUtils.toString(entity);
                     LOG.debug(result);
-                    ObjectMapper mapper = new ObjectMapper();
                     return mapper.readValue(result, AktionenResponseDto.class);
                 }
             } else {
@@ -112,7 +111,6 @@ public class RadeltAPIClient {
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
                     String result = EntityUtils.toString(entity);
-                    ObjectMapper mapper = new ObjectMapper();
                     return mapper.readValue(result, OrganisationenResponseDto.class);
                 }
             } else {
