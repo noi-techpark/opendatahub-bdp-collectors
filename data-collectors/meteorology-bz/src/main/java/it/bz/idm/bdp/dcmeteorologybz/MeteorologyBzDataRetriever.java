@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -74,6 +75,8 @@ public class MeteorologyBzDataRetriever {
 
     private ObjectMapper mapper = new ObjectMapper();
 
+    private long requestDelayMs = 0;
+
     private String endpointMethodStations;
     private String serviceUrlStations;
 
@@ -91,6 +94,10 @@ public class MeteorologyBzDataRetriever {
     @PostConstruct
     private void initClient(){
         LOG.debug("Init");
+        String strRequestDelay = env.getProperty("app.request_delay_ms");
+        if (strRequestDelay != null && !strRequestDelay.isBlank()) {
+            requestDelayMs = Long.parseLong(strRequestDelay.trim());
+        }
         if (clientStations==null) {
             //Read config data from external bundle
             String strEndpointMethod   = env.getProperty("endpoint.stations.method");
@@ -254,7 +261,17 @@ public class MeteorologyBzDataRetriever {
 
         LOG.debug("URI = " + uri);
 
+        if (requestDelayMs > 0) {
+            Thread.sleep(requestDelayMs);
+        }
+
         CloseableHttpResponse response = client.execute(request);
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode >= 400) {
+            response.close();
+            throw new HttpResponseException(statusCode, "HTTP " + statusCode + " from " + uri);
+        }
+
         InputStream entity = response.getEntity().getContent();
         StringWriter writer = new StringWriter();
         IOUtils.copy(entity, writer);
@@ -428,9 +445,13 @@ public class MeteorologyBzDataRetriever {
                 try {
                     fetchDataByStation(meteoDto);
                 } catch (Exception ex) {
-                    LOG.error("ERROR in fetchData: " + ex.getMessage(), ex);
-                    String stackTrace = DCUtils.extractStackTrace(ex, -1);
-                    err.append("\n***** EXCEPTION RETRIEVING DATA FOR STATION: '"+stationId+"' ******" + stackTrace);
+                    if (ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode() == 429) {
+                        LOG.warn("fetchData rate-limited, skipping station={}", stationId);
+                    } else {
+                        LOG.error("ERROR in fetchData for station={}: {}", stationId, ex.getMessage(), ex);
+                        String stackTrace = DCUtils.extractStackTrace(ex, -1);
+                        err.append("\n***** EXCEPTION RETRIEVING DATA FOR STATION: '"+stationId+"' ******" + stackTrace);
+                    }
                 }
             }
             if ( dtoList.size()==0 && err.length()>0 ) {
@@ -706,7 +727,11 @@ public class MeteorologyBzDataRetriever {
 
                 LOG.debug("Data fetched for station="+stationId+", sensor="+sensorType+": "+size);
             } catch (Exception ex) {
-                LOG.error("ERROR in fetchData: " + ex.getMessage(), ex);
+                if (ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode() == 429) {
+                    LOG.warn("fetchDataByStation rate-limited, skipping station={} sensor={}", stationId, sensorType);
+                } else {
+                    LOG.error("ERROR in fetchDataByStation: " + ex.getMessage(), ex);
+                }
                 throw ex;
             }
 
