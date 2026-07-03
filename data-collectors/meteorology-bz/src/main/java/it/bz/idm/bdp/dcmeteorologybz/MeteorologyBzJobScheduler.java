@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.http.client.HttpResponseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -99,9 +100,9 @@ public class MeteorologyBzJobScheduler {
 
                 //Send measurements separately for each station
                 for (int i=0 ; i<size ; i++) {
+                    MeteorologyBzDto meteoBzDto = data.get(i);
+                    String stationId = meteoBzDto.getStation()!=null ? meteoBzDto.getStation().getId() : null;
                     try {
-                        MeteorologyBzDto meteoBzDto = data.get(i);
-                        String stationId = meteoBzDto.getStation()!=null ? meteoBzDto.getStation().getId() : null;
                         LOG.info("fetchData, "+i+" of "+size+": stationId="+stationId);
 
                         retriever.fetchDataByStation(meteoBzDto);
@@ -111,8 +112,12 @@ public class MeteorologyBzJobScheduler {
                         if (stationRec != null && !stationRec.getBranch().isEmpty()){
                             pusher.pushData(stationRec);
                         }
-                    }catch(Exception ex) {
-                        ex.printStackTrace();
+                    } catch (Exception ex) {
+                        if (ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode() == 429) {
+                            LOG.warn("pushData rate-limited, skipping station={}", stationId);
+                        } else {
+                            LOG.error("pushData error for station={}: {}", stationId, ex.getMessage(), ex);
+                        }
                         continue;
                     }
                 }
