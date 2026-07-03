@@ -441,7 +441,7 @@ public class MeteorologyBzDataRetriever {
             for (int i=0 ; i<size ; i++) {
                 MeteorologyBzDto meteoDto = dtoList.get(i);
                 String stationId = meteoDto.getStation()!=null ? meteoDto.getStation().getId() : null;
-                LOG.info("fetchData, "+i+" of "+size+": stationId="+stationId);
+                LOG.debug("fetchData, "+i+" of "+size+": stationId="+stationId);
                 try {
                     fetchDataByStation(meteoDto);
                 } catch (Exception ex) {

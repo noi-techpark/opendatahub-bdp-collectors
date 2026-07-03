@@ -87,7 +87,7 @@ public class MeteorologyBzJobScheduler {
 
             boolean pushDataSingleStation = converter.isPushDataSingleStation();
             boolean checkDateOfLastRecord = converter.isCheckDateOfLastRecord();
-            LOG.info("  pushData:  checkDateOfLastRecord="+checkDateOfLastRecord+"  pushDataSingleStation="+pushDataSingleStation);
+            LOG.debug("  pushData:  checkDateOfLastRecord="+checkDateOfLastRecord+"  pushDataSingleStation="+pushDataSingleStation);
 
             if ( pushDataSingleStation ) {
 
@@ -103,7 +103,7 @@ public class MeteorologyBzJobScheduler {
                     MeteorologyBzDto meteoBzDto = data.get(i);
                     String stationId = meteoBzDto.getStation()!=null ? meteoBzDto.getStation().getId() : null;
                     try {
-                        LOG.info("fetchData, "+i+" of "+size+": stationId="+stationId);
+                        LOG.debug("fetchData, "+i+" of "+size+": stationId="+stationId);
 
                         retriever.fetchDataByStation(meteoBzDto);
 
