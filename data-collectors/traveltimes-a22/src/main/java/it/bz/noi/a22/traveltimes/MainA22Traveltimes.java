@@ -57,6 +57,8 @@ public class MainA22Traveltimes
 	public void execute()
 	{
 		long startTime = System.currentTimeMillis();
+		Connector a22Service = null;
+		Exception firstError = null;
 		try
 		{
 			LOG.info("Start MainA22Traveltimes");
@@ -66,7 +68,7 @@ public class MainA22Traveltimes
 			//
 			// the session will last 24 hours unless de-authenticated before - however, if a user
 			// de-authenticates one session, all sessions of the same user will be de-authenticated
-			Connector a22Service = setupA22ServiceConnector();
+			a22Service = setupA22ServiceConnector();
 
 			setupDataType();
 
@@ -125,6 +127,7 @@ public class MainA22Traveltimes
 				}
 			} catch (Exception e) {
 				LOG.error("step 2 failed, continuing anyway to de-auth...", e);
+				firstError = e;
 			}
 
 			// step 3
@@ -164,7 +167,8 @@ public class MainA22Traveltimes
 				}
 
 			} catch (Exception e) {
-				LOG.error("step 3 failed, continuing anyway...", e);
+				LOG.error("step 3 failed, continuing anyway to de-auth...", e);
+				if (firstError == null) firstError = e;
 			}
 
 			// step 4
@@ -206,20 +210,33 @@ public class MainA22Traveltimes
 
 			} catch (Exception e) {
 				LOG.error("step 4 (TVCC) failed, continuing anyway to de-auth...", e);
+				if (firstError == null) firstError = e;
 			}
-
-			// step 5
-			// de-authentication
-			a22Service.close();
 		}
 		catch (Exception e)
 		{
-			throw new IllegalStateException(e);
+			// setup or data-type failures land here
+			if (firstError == null) firstError = e;
 		}
 		finally
 		{
+			// step 5
+			// de-authentication: always release the session, even when a step failed
+			if (a22Service != null) {
+				try {
+					a22Service.close();
+				} catch (Exception e) {
+					LOG.error("de-authentication failed", e);
+					if (firstError == null) firstError = e;
+				}
+			}
 			long stopTime = System.currentTimeMillis();
 			LOG.debug("elaboration time (millis): " + (stopTime - startTime));
+		}
+
+		// Do not swallow failures: surface any step error so the collector run is reported as failed
+		if (firstError != null) {
+			throw new IllegalStateException("MainA22Traveltimes run failed", firstError);
 		}
 	}
 
@@ -288,13 +305,7 @@ public class MainA22Traveltimes
 
 		// ########## LIGHT VEHICLES ##########
 		// lds
-		String ldsLightKey = datatypesProperties.getProperty("a22traveltimes.datatype.lds_leggeri.key");
-		String ldsLightRaw = traveltime.get("lds");
-		recs.addRecord(stationId, ldsLightKey, new SimpleRecordDto(ts, ldsLightRaw, 1));
-		String ldsLightDesc = datatypesProperties.getProperty("a22traveltimes.datatype.lds_leggeri.mapping." + ldsLightRaw + ".desc");
-		recs.addRecord(stationId, ldsLightKey + "_desc", new SimpleRecordDto(ts, ldsLightDesc, 1));
-		Double ldsLightVal = Double.parseDouble(datatypesProperties.getProperty("a22traveltimes.datatype.lds_leggeri.mapping." + ldsLightRaw + ".val"));
-		recs.addRecord(stationId, ldsLightKey + "_val", new SimpleRecordDto(ts, ldsLightVal, 1));
+		addLdsRecords(recs, stationId, ts, "lds_leggeri", traveltime.get("lds"));
 
 		// tempo
 		String tempoLightKey = datatypesProperties.getProperty("a22traveltimes.datatype.tempo_leggeri.key");
@@ -305,13 +316,7 @@ public class MainA22Traveltimes
 
 		// ########## HEAVY VEHICLES ##########
 		// lds
-		String ldsHeavyKey = datatypesProperties.getProperty("a22traveltimes.datatype.lds_pesanti.key");
-		String ldsHeavyRaw = traveltime.get("pesanti_lds");
-		recs.addRecord(stationId, ldsHeavyKey, new SimpleRecordDto(ts, ldsHeavyRaw, 1));
-		String ldsHeavyDesc = datatypesProperties.getProperty("a22traveltimes.datatype.lds_pesanti.mapping." + ldsHeavyRaw + ".desc");
-		recs.addRecord(stationId, ldsHeavyKey + "_desc", new SimpleRecordDto(ts, ldsHeavyDesc, 1));
-		Double ldsHeavyVal = Double.parseDouble(datatypesProperties.getProperty("a22traveltimes.datatype.lds_pesanti.mapping." + ldsHeavyRaw + ".val"));
-		recs.addRecord(stationId, ldsHeavyKey + "_val", new SimpleRecordDto(ts, ldsHeavyVal, 1));
+		addLdsRecords(recs, stationId, ts, "lds_pesanti", traveltime.get("pesanti_lds"));
 
 		// tempo
 		String tempoHeavyKey = datatypesProperties.getProperty("a22traveltimes.datatype.tempo_pesanti.key");
@@ -327,6 +332,32 @@ public class MainA22Traveltimes
 			String numPesantiKey = datatypesProperties.getProperty("a22traveltimes.datatype.num_pesanti.key");
 			recs.addRecord(stationId, numPesantiKey, new SimpleRecordDto(ts, Double.parseDouble(traveltime.get("num_pesanti")), 1));
 		}
+	}
+
+	/**
+	 * Emit the level-of-service (lds) records (raw value, description and numeric value) for the given
+	 * datatype ("lds_leggeri" or "lds_pesanti").
+	 *
+	 * The A22 API returns an empty lds when no traffic-level classification is available for a
+	 * measurement (e.g. very low vehicle counts); this is expected, so we simply skip the lds records
+	 * and keep the rest of the measurement (tempo, velocita, counts). A non-empty but unmapped value,
+	 * on the other hand, is an unexpected data anomaly and is thrown so the run fails loudly instead of
+	 * silently dropping data.
+	 */
+	private void addLdsRecords(DataMapDto<RecordDtoImpl> recs, String stationId, long ts, String datatypeId, String ldsRaw) {
+		// no classification available for this measurement: nothing to map, keep the rest of the record
+		if (ldsRaw == null || ldsRaw.isEmpty()) {
+			return;
+		}
+		String ldsKey = datatypesProperties.getProperty("a22traveltimes.datatype." + datatypeId + ".key");
+		String ldsDesc = datatypesProperties.getProperty("a22traveltimes.datatype." + datatypeId + ".mapping." + ldsRaw + ".desc");
+		String valRaw = datatypesProperties.getProperty("a22traveltimes.datatype." + datatypeId + ".mapping." + ldsRaw + ".val");
+		if (ldsDesc == null || valRaw == null) {
+			throw new IllegalStateException("unknown lds value '" + ldsRaw + "' for datatype " + datatypeId);
+		}
+		recs.addRecord(stationId, ldsKey, new SimpleRecordDto(ts, ldsRaw, 1));
+		recs.addRecord(stationId, ldsKey + "_desc", new SimpleRecordDto(ts, ldsDesc, 1));
+		recs.addRecord(stationId, ldsKey + "_val", new SimpleRecordDto(ts, Double.parseDouble(valRaw), 1));
 	}
 
 	private long getLastTimestampOfStationInSeconds(String stationId) {
