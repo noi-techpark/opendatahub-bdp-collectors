@@ -1,6 +1,6 @@
 ##### VSCODE / REST Client https://marketplace.visualstudio.com/items?itemName=humao.rest-client
 
-@endpoint = https://dati.retecivica.bz.it
+@endpoint = https://geoservices.buergernetz.bz.it
 
 ### STATIONS
 GET {{endpoint}}/services/meteo/v1/stations
